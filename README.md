@@ -8,4 +8,4 @@ A Visual Studio extension that provides a means to update all version informatio
 * [Issues](https://github.com/dahall/IntentionalSolutionVersion/issues)
 
 ## Installation
-This project is available via the [Visual Studio Marketplace](https://marketplace.visualstudio.com/), in the [Releases area](https://github.com/dahall/IntentionalSolutionVersion/releases/latest), and inside Visual Studio under "Extensions and Updates".
+This project is available via the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dahall.IntentionalSolutionVersion), in the [Releases area](https://github.com/dahall/IntentionalSolutionVersion/releases/latest), and inside Visual Studio under "Extensions and Updates".
