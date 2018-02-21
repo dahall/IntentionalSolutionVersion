@@ -60,7 +60,7 @@ namespace IntentionalSolutionVersion
 		/// <param name="e">Event args.</param>
 		private void MenuItemCallback(object sender, EventArgs e)
 		{
-			new VersionDialog(package?.DTE?.Solution?.GetFiles()).ShowDialog();
+			new VersionDialog(package?.DTE?.Solution?.FileName, package?.DTE?.Solution?.GetFiles()).ShowDialog();
 		}
 	}
 

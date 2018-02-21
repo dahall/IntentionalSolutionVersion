@@ -56,9 +56,15 @@
   <ItemGroup>
     <Compile Include="EnvDTEExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="SetVerCmd.cs" />
     <Compile Include="SetVerCmdPackage.cs" />
     <Compile Include="SolutionVersionProcessor.cs" />
+    <Compile Include="VersionExt.cs" />
     <Compile Include="VersionDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +86,10 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

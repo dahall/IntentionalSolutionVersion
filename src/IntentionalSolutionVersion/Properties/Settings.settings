@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="IntentionalSolutionVersion.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AssemblyInfoFileNames" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AssemblyInfo.cs;SharedAssemblyInfo.cs</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

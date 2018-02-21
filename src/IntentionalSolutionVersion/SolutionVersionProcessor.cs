@@ -10,22 +10,25 @@ namespace IntentionalSolutionVersion
 {
 	internal static class SolutionVersionProcessor
 	{
-		private const string defRegex = @"(\d+(?:\.\d+){2,3})";
+		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
 
-		public static async Task<IList<VerData>> GetProjectVersions(IDictionary<string, List<string>> slnFiles)
+		public static async Task<IList<VerData>> GetProjectVersions(string slnPath, IDictionary<string, List<string>> slnFiles)
 		{
 			const string msbld = "http://schemas.microsoft.com/developer/msbuild/2003";
 			const string nuspec = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
+			const string nuspecold = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd";
 			const string vsix = "http://schemas.microsoft.com/developer/vsx-schema/2011";
 			const string vst = "http://schemas.microsoft.com/developer/vstemplate/2005";
+			const string nupkgRegex = @".*\.(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\.nupkg";
 
 			return await Task.Run(() =>
 			{
 				var d = new List<VerData>();
-
+				if (!string.IsNullOrEmpty(slnPath))
+					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
 				foreach (string proj in slnFiles.Keys)
 				{
-					var projName = Path.GetFileName(proj);
+					var projName = Path.GetFileName(proj.TrimEnd('\\'));
 
 					void AddVer(VerData ver) { ver.Project = projName; d.Add(ver); }
 
@@ -40,31 +43,15 @@ namespace IntentionalSolutionVersion
 								AddVer(ver);
 							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:VersionPrefix", msbld, null))
 								AddVer(ver);
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, @".*\.(\d+\.\d+\.\d+)\.nupkg"))
+							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, nupkgRegex))
 								AddVer(ver);
-							foreach (var fn in GetProjectFiles(slnFiles[proj], "AssemblyInfo.cs"))
-							{
-								if (TryGetAttrVersion(fn, "AssemblyVersion", out VerData aver))
-									AddVer(aver);
-								if (TryGetAttrVersion(fn, "AssemblyFileVersion", out aver))
-									AddVer(aver);
-								if (TryGetAttrVersion(fn, "AssemblyInformationalVersion", out aver))
-									AddVer(aver);
-							}
-							foreach (var fn in GetProjectFiles(slnFiles[proj], ".nuspec"))
-							{
-								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
-									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"\[(\d+\.\d+\.\d+)\]"))
-									AddVer(ver);
-							}
 							foreach (var fn in GetProjectFiles(slnFiles[proj], ".vsixmanifest"))
 							{
 								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Metadata/x:Identity/@Version", vsix, null))
 									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Type", vsix, @".*\.(\d+\.\d+\.\d+)\.nupkg"))
+								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Type", vsix, nupkgRegex))
 									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Path", vsix, @".*\.(\d+\.\d+\.\d+)\.nupkg"))
+								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Path", vsix, nupkgRegex))
 									AddVer(ver);
 							}
 							foreach (var fn in GetProjectFiles(slnFiles[proj], ".vstemplate"))
@@ -72,11 +59,35 @@ namespace IntentionalSolutionVersion
 								foreach (var ver in GetXmlTagVersions(fn, "/x:VSTemplate/x:WizardData/x:packages/x:package/@version", vst, null))
 									AddVer(ver);
 							}
-							break;
+							goto case "";
 
 						case ".shfbproj":
 							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:HelpFileVersion", msbld, null))
 								AddVer(ver);
+							break;
+
+						case "":
+							foreach (var aifn in Properties.Settings.Default.AssemblyInfoFileNames.Split(';'))
+							{
+								foreach (var fn in GetProjectFiles(slnFiles[proj], aifn))
+								{
+									if (TryGetAttrVersion(fn, "AssemblyVersion", out VerData aver))
+										AddVer(aver);
+									if (TryGetAttrVersion(fn, "AssemblyFileVersion", out aver))
+										AddVer(aver);
+									if (TryGetAttrVersion(fn, "AssemblyInformationalVersion", out aver))
+										AddVer(aver);
+								}
+							}
+							foreach (var fn in GetProjectFiles(slnFiles[proj], ".nuspec"))
+							{
+								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
+									AddVer(ver);
+								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
+									AddVer(ver);
+								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"\[(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\]"))
+									AddVer(ver);
+							}
 							break;
 
 						default:
@@ -151,7 +162,7 @@ namespace IntentionalSolutionVersion
 		{
 			foreach (var i in projectFiles)
 			{
-				if ((name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
+				if (i != null && (name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
 					(name[0] != '.' && Path.GetFileName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)))
 					yield return i;
 			}
@@ -190,7 +201,7 @@ namespace IntentionalSolutionVersion
 
 		private static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 		{
-			var expr = string.Format(@"\[assembly:.*{0}(?:Attribute)?\s*\(\s*\""(\d+(?:\.\d+){{2,3}})\""\s*\)\s*\]", attr);
+			var expr = string.Format(@"\[assembly:.*{0}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]", attr);
 			int n = 0;
 			foreach (var l in File.ReadLines(fn))
 			{

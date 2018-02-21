@@ -38,11 +38,26 @@ namespace IntentionalSolutionVersion
 		public static IDictionary<string, List<string>> GetFiles(this Solution sln)
 		{
 			var d = new Dictionary<string, List<string>>();
+			var bad = new List<string>();
 			foreach (var p in sln.EnumProjects()) //.Distinct(new ProjEqComp()))
 			{
-				var l = new List<string>(p.EnumProjectItems().Where(i => i.Kind == Constants.vsProjectItemKindPhysicalFile && i.FileCount > 0).Select(i => i.GetFileName()));
-				d.Add(p.FileName.Contains('\\') ? p.FileName : p.FullName, l);
+				var fn = p.FileName.Contains('\\') ? p.FileName : p.FullName;
+				if (string.IsNullOrEmpty(fn)) fn = p.Name;
+				var l = new List<string>();
+				foreach (var i in p.EnumProjectItems())
+				{
+					var kn = Name(i.Kind);
+					System.Diagnostics.Debug.WriteLine(kn);
+					if ((i.Kind == Constants.vsProjectItemKindPhysicalFile || i.Kind == Constants.vsProjectItemKindSolutionItems) && i.FileCount > 0)
+					{
+						var lfn = i.GetFileName();
+						if (!string.IsNullOrEmpty(lfn)) l.Add(lfn);
+					}
+				}
+				try { d.Add(fn, l); } catch { bad.Add(fn); }
 			}
+			if (bad.Count > 0)
+				System.Windows.Forms.MessageBox.Show("Duplicate projects. Please report as issue and include this text. (Press Ctrl-C to capture)\n\r" + string.Join("\n\r", bad) + "\n\r\n\rFound projects:" + string.Join("\n\r", d.Keys));
 			return d;
 		}
 

@@ -9,12 +9,14 @@ namespace IntentionalSolutionVersion
 	internal partial class VersionDialog : Form
 	{
 		private IDictionary<string, List<string>> sln;
+		private string slnFileName;
 		private IList<VerData> data;
 
-		public VersionDialog(IDictionary<string, List<string>> dictionary)
+		public VersionDialog(string slnPath, IDictionary<string, List<string>> dictionary)
 		{
 			InitializeComponent();
 			sln = dictionary;
+			slnFileName = slnPath;
 			list.ItemChecked += List_ItemChecked;
 			list.ListViewItemSorter = new ListViewItemComparer(0);
 		}
@@ -34,7 +36,7 @@ namespace IntentionalSolutionVersion
 		protected async override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			data = await SolutionVersionProcessor.GetProjectVersions(sln);
+			data = await SolutionVersionProcessor.GetProjectVersions(slnFileName, sln);
 			var cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
