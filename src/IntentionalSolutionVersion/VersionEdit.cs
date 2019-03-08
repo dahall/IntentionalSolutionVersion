@@ -6,10 +6,7 @@ namespace IntentionalSolutionVersion
 {
 	public partial class VersionEdit : UserControl
 	{
-		public VersionEdit()
-		{
-			InitializeComponent();
-		}
+		public VersionEdit() => InitializeComponent();
 
 		[DefaultValue(true), Category("Appearance")]
 		public bool ShowRevision
@@ -49,15 +46,12 @@ namespace IntentionalSolutionVersion
 			}
 		}
 
-		private int GetValue(TextBox tb, int def = -1) => tb.TextLength == 0 || !int.TryParse(tb.Text, out var val) ? def : val;
+		private static int GetValue(TextBox tb, int def = -1) => tb.TextLength == 0 || !int.TryParse(tb.Text, out var val) ? def : val;
 
 		private void ResetValue() => Value = new Version();
 
 		private bool ShouldSerializeValue => Value != new Version();
 
-		private void verMajor_KeyDown(object sender, KeyEventArgs e)
-		{
-			e.SuppressKeyPress = !(e.KeyCode == Keys.Back || (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9 && e.Modifiers != Keys.Shift) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9));
-		}
+		private void verMajor_KeyDown(object sender, KeyEventArgs e) => e.SuppressKeyPress = !(e.KeyCode == Keys.Back || (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9 && e.Modifiers != Keys.Shift) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9));
 	}
 }

@@ -12,7 +12,7 @@ namespace IntentionalSolutionVersion
 	{
 		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
 
-		public static async Task<IList<VerData>> GetProjectVersions(string slnPath, IDictionary<string, List<string>> slnFiles)
+		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, IDictionary<string, List<string>> slnFiles)
 		{
 			const string msbld = "http://schemas.microsoft.com/developer/msbuild/2003";
 			const string nuspec = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
@@ -26,7 +26,7 @@ namespace IntentionalSolutionVersion
 				var d = new List<VerData>();
 				if (!string.IsNullOrEmpty(slnPath))
 					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
-				foreach (string proj in slnFiles.Keys)
+				foreach (var proj in slnFiles.Keys)
 				{
 					var projName = Path.GetFileName(proj.TrimEnd('\\'));
 
@@ -71,7 +71,7 @@ namespace IntentionalSolutionVersion
 							{
 								foreach (var fn in GetProjectFiles(slnFiles[proj], aifn))
 								{
-									if (TryGetAttrVersion(fn, "AssemblyVersion", out VerData aver))
+									if (TryGetAttrVersion(fn, "AssemblyVersion", out var aver))
 										AddVer(aver);
 									if (TryGetAttrVersion(fn, "AssemblyFileVersion", out aver))
 										AddVer(aver);
@@ -99,7 +99,7 @@ namespace IntentionalSolutionVersion
 			});
 		}
 
-		public static async Task Update(IEnumerable<VerData> vers, Version newVer)
+		public static async Task UpdateAsync(IEnumerable<VerData> vers, Version newVer)
 		{
 			await Task.Run(() =>
 			{
@@ -113,7 +113,7 @@ namespace IntentionalSolutionVersion
 						pver.FileName;
 #endif
 					System.Diagnostics.Debug.WriteLine($"Processing {pver.FileName}...");
-					if (int.TryParse(pver.Locator, out var _))
+					if (int.TryParse(pver.Locator, out _))
 					{
 						using (var ms = new MemoryStream())
 						{
@@ -122,13 +122,12 @@ namespace IntentionalSolutionVersion
 								rdr.Peek();
 								var wr = new StreamWriter(ms, rdr.CurrentEncoding);
 								var lineLookup = grp.ToDictionary(v => int.Parse(v.Locator));
-								for (int i = 0; !rdr.EndOfStream; i++)
+								for (var i = 0; !rdr.EndOfStream; i++)
 								{
-									string l = rdr.ReadLine();
-									if (lineLookup.TryGetValue(i + 1, out var ver))
-										wr.WriteLine(ReplaceGroup(l, ver.RegEx, newVer.ToString()));
-									else
-										wr.WriteLine(l);
+									var l = rdr.ReadLine();
+									wr.WriteLine(lineLookup.TryGetValue(i + 1, out var ver)
+										? ReplaceGroup(l, ver.RegEx, newVer.ToString())
+										: l);
 								}
 								wr.Flush();
 							}
@@ -175,13 +174,13 @@ namespace IntentionalSolutionVersion
 			var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
 			nsp.AddNamespace("x", ns);
 			var nodes = xmlDoc.SelectNodes(xmlPath, nsp);
-			if (nodes.Count == 0)
+			if (nodes is null || nodes.Count == 0)
 			{
 				ns = "";
 				nsp.AddNamespace("x", ns);
 				nodes = xmlDoc.SelectNodes(xmlPath, nsp);
 			}
-			for (int i = 0; i < nodes.Count; i++)
+			for (var i = 0; !(nodes is null) && i < nodes.Count; i++)
 			{
 				if (regEx == null) regEx = defRegex;
 				var m = Regex.Match(nodes[i].InnerText, regEx);
@@ -195,23 +194,21 @@ namespace IntentionalSolutionVersion
 			return Regex.Replace(input, pattern, m =>
 			{
 				var grp = m.Groups[1];
-				return String.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
+				return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
 			});
 		}
 
 		private static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 		{
-			var expr = string.Format(@"\[assembly:.*{0}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]", attr);
-			int n = 0;
+			var expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
+			var n = 0;
 			foreach (var l in File.ReadLines(fn))
 			{
 				n++;
 				var m = Regex.Match(l, expr);
-				if (m.Success)
-				{
-					ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
-					return true;
-				}
+				if (!m.Success) continue;
+				ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
+				return true;
 			}
 			ver = null;
 			return false;

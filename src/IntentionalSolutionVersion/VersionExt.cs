@@ -21,10 +21,12 @@ namespace IntentionalSolutionVersion
 			if (version.Minor != value.Minor)
 				return version.Minor > value.Minor ? 1 : -1;
 
-			if (version.Build != value.Build && (comparisonType == VersionComparison.IgnoreUnset && !(version.Build == -1 || value.Build == -1)))
+			if (version.Build != value.Build && comparisonType == VersionComparison.IgnoreUnset &&
+			    !(version.Build == -1 || value.Build == -1))
 				return version.Build > value.Build ? 1 : -1;
 
-			if (version.Revision != value.Revision && (comparisonType == VersionComparison.IgnoreUnset && !(version.Revision == -1 || value.Revision == -1)))
+			if (version.Revision != value.Revision && comparisonType == VersionComparison.IgnoreUnset &&
+			    !(version.Revision == -1 || value.Revision == -1))
 				return version.Revision > value.Revision ? 1 : -1;
 
 			return 0;
@@ -35,13 +37,11 @@ namespace IntentionalSolutionVersion
 			if (value == null)
 				return false;
 
-			if ((version.Major != value.Major) ||
-				(version.Minor != value.Minor) ||
-				(version.Build != value.Build && (comparisonType == VersionComparison.IgnoreUnset && !(version.Build == -1 || value.Build == -1))) ||
-				(version.Revision != value.Revision && (comparisonType == VersionComparison.IgnoreUnset && !(version.Revision == -1 || value.Revision == -1))))
-				return false;
-
-			return true;
+			return version.Major == value.Major && version.Minor == value.Minor &&
+			       (version.Build == value.Build || comparisonType != VersionComparison.IgnoreUnset ||
+			        version.Build == -1 || value.Build == -1) &&
+			       (version.Revision == value.Revision || comparisonType != VersionComparison.IgnoreUnset ||
+			        version.Revision == -1 || value.Revision == -1);
 		}
 
 		public static Version Increment(this Version value)
@@ -49,7 +49,9 @@ namespace IntentionalSolutionVersion
 			if (value == null) return null;
 			var bld = value.Build;
 			var rev = value.Revision;
-			return bld == -1 ? new Version(value.Major, value.Minor + 1) : (rev == -1 ? new Version(value.Major, value.Minor, bld + 1) : new Version(value.Major, value.Minor, bld, rev + 1));
+			return bld == -1 ? new Version(value.Major, value.Minor + 1) :
+				rev == -1 ? new Version(value.Major, value.Minor, bld + 1) :
+				new Version(value.Major, value.Minor, bld, rev + 1);
 		}
 	}
 }

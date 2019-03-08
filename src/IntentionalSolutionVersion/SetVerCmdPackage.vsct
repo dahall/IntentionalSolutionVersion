@@ -55,7 +55,8 @@
       <Button guid="guidSetVerCmdPackageCmdSet" id="SetVerCmdId" priority="0x0100" type="Button">
         <Parent guid="guidSetVerCmdPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
-        <CommandFlag>DefaultDisabled</CommandFlag>
+        <!--<CommandFlag>DefaultDisabled</CommandFlag>-->
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Update version info...</ButtonText>
         </Strings>
@@ -73,9 +74,22 @@
     </Bitmaps>
   </Commands>
 
+  <VisibilityConstraints>
+    <!-- 
+    This will show or hide the button based on the uiContextSupportedFiles which is specified in
+    the ProvideUIContextRule attribute on the package class in MyPackage.cs. 
+    
+    Note, this only applies when the package hasn't been loaded yet. When loaded, the visibility
+    of the button is controlled by the MenuItemQueryStatus method in MyButton.cs.
+    -->
+    <VisibilityItem guid="guidSetVerCmdPackageCmdSet" id="SetVerCmdId" context="guidTestUIContext" />
+  </VisibilityConstraints>
+
   <Symbols>
     <!-- This is the package guid. -->
     <GuidSymbol name="guidSetVerCmdPackage" value="{4b8ed92a-039f-47c6-a431-72890c0ba868}" />
+
+    <GuidSymbol name="guidTestUIContext" value="{FFC6DE6D-C641-42A2-B2D5-65C9932AF168}" />
 
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidSetVerCmdPackageCmdSet" value="{8cd00976-86c6-4ddd-9c4f-c758bc01d6e4}">

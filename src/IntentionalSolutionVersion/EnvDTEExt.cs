@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.VisualStudio.Shell;
 
 namespace IntentionalSolutionVersion
 {
@@ -10,13 +11,14 @@ namespace IntentionalSolutionVersion
 	{
 		public static IEnumerable<ProjectItem> EnumProjectItems(this Project project, string kind = null)
 		{
-			foreach (var ti in project?.ProjectItems?.Cast<ProjectItem>() ?? new ProjectItem[0])
-				foreach (var pi in TreeTraversal(ti, i => i.ProjectItems?.Cast<ProjectItem>().Where(i2 => kind == null || kind == i2.Kind) ?? new ProjectItem[0]))
-					yield return pi;
+			ThreadHelper.ThrowIfNotOnUIThread();
+			return (project?.ProjectItems?.Cast<ProjectItem>() ?? 
+			        new ProjectItem[0]).SelectMany(ti => TreeTraversal(ti, i => i.ProjectItems?.Cast<ProjectItem>().Where(i2 => kind == null || kind == i2.Kind) ?? new ProjectItem[0]));
 		}
 
 		public static IEnumerable<Project> EnumProjects(this Solution sln)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			foreach (var proj in (sln?.Projects?.Cast<Project>() ?? new Project[0]))
 			{
 				yield return proj;
@@ -30,6 +32,7 @@ namespace IntentionalSolutionVersion
 
 		public static string GetFileName(this ProjectItem item)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			if (item.FileCount == 0) return null;
 			try { return item.FileNames[0]; }
 			catch { return item.FileNames[1]; }
@@ -37,6 +40,7 @@ namespace IntentionalSolutionVersion
 
 		public static IDictionary<string, List<string>> GetFiles(this Solution sln)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			var d = new Dictionary<string, List<string>>();
 			var bad = new List<string>();
 			foreach (var p in sln.EnumProjects()) //.Distinct(new ProjEqComp()))
@@ -48,11 +52,10 @@ namespace IntentionalSolutionVersion
 				{
 					var kn = Name(i.Kind);
 					System.Diagnostics.Debug.WriteLine(kn);
-					if ((i.Kind == Constants.vsProjectItemKindPhysicalFile || i.Kind == Constants.vsProjectItemKindSolutionItems) && i.FileCount > 0)
-					{
-						var lfn = i.GetFileName();
-						if (!string.IsNullOrEmpty(lfn)) l.Add(lfn);
-					}
+					if (i.Kind != Constants.vsProjectItemKindPhysicalFile && i.Kind != Constants.vsProjectItemKindSolutionItems || i.FileCount <= 0)
+						continue;
+					var lfn = i.GetFileName();
+					if (!string.IsNullOrEmpty(lfn)) l.Add(lfn);
 				}
 				try { d.Add(fn, l); } catch { bad.Add(fn); }
 			}
@@ -67,9 +70,10 @@ namespace IntentionalSolutionVersion
 
 		private static string Name(string vsConst)
 		{
-			return typeof(Constants).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).
-				Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string) && fi.Name.StartsWith("vs") && !fi.Name.StartsWith("vsext") && vsConst.Equals(fi.GetRawConstantValue().ToString(), StringComparison.InvariantCultureIgnoreCase)).
-				FirstOrDefault()?.Name ?? vsConst;
+			ThreadHelper.ThrowIfNotOnUIThread();
+			return typeof(Constants).
+				GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy).
+				FirstOrDefault(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string) && fi.Name.StartsWith("vs") && !fi.Name.StartsWith("vsext") && vsConst.Equals(fi.GetRawConstantValue().ToString(), StringComparison.InvariantCultureIgnoreCase))?.Name ?? vsConst;
 		}
 
 		private static IEnumerable<T> TreeTraversal<T>(T root, Func<T, IEnumerable<T>> children)
