@@ -2,6 +2,7 @@
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -24,13 +25,13 @@ namespace IntentionalSolutionVersion
 	/// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
 	/// </para>
 	/// </remarks>
-	[PackageRegistration(UseManagedResourcesOnly = true)]
+	[PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
 	[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
 	[ProvideMenuResource("Menus.ctmenu", 1)]
-	[ProvideAutoLoad(UIContextGuids80.SolutionExists)]
+	[ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
 	[Guid(SetVerCmdPackage.PackageGuidString)]
 	[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-	public sealed class SetVerCmdPackage : Package
+	public sealed class SetVerCmdPackage : AsyncPackage
 	{
 		/// <summary>
 		/// SetVerCmdPackage GUID string.
@@ -48,20 +49,18 @@ namespace IntentionalSolutionVersion
 			// initialization is the Initialize method.
 		}
 
-		public EnvDTE.DTE DTE { get; private set; }
-
 		#region Package Members
 
 		/// <summary>
 		/// Initialization of the package; this method is called right after the package is sited, so this is the place
 		/// where you can put all the initialization code that rely on services provided by VisualStudio.
 		/// </summary>
-		protected override void Initialize()
+		protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
 		{
-			var svcCont = this as IServiceContainer;
-			DTE = svcCont.GetService(typeof(SDTE)) as EnvDTE.DTE;
-			SetVerCmd.Initialize(this);
-			base.Initialize();
+			await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+			var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+			await SetVerCmd.InitializeAsync(this, dte);
+			await base.InitializeAsync(cancellationToken, progress);
 		}
 
 		#endregion
