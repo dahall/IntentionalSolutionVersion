@@ -1,9 +1,11 @@
 ﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.VisualStudio.Shell;
+using Constants = EnvDTE.Constants;
 
 namespace IntentionalSolutionVersion
 {
@@ -12,8 +14,8 @@ namespace IntentionalSolutionVersion
 		public static IEnumerable<ProjectItem> EnumProjectItems(this Project project, string kind = null)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-			return (project?.ProjectItems?.Cast<ProjectItem>() ?? 
-			        new ProjectItem[0]).SelectMany(ti => TreeTraversal(ti, i => i.ProjectItems?.Cast<ProjectItem>().Where(i2 => kind == null || kind == i2.Kind) ?? new ProjectItem[0]));
+			return (project?.ProjectItems?.Cast<ProjectItem>() ??
+				new ProjectItem[0]).SelectMany(ti => TreeTraversal(ti, i => i.ProjectItems?.Cast<ProjectItem>().Where(i2 => kind == null || kind == i2.Kind) ?? new ProjectItem[0]));
 		}
 
 		public static IEnumerable<Project> EnumProjects(this Solution sln)
@@ -45,8 +47,6 @@ namespace IntentionalSolutionVersion
 			var bad = new List<string>();
 			foreach (var p in sln.EnumProjects()) //.Distinct(new ProjEqComp()))
 			{
-				var fn = p.FileName.Contains('\\') ? p.FileName : p.FullName;
-				if (string.IsNullOrEmpty(fn)) fn = p.Name;
 				var l = new List<string>();
 				foreach (var i in p.EnumProjectItems())
 				{
@@ -57,10 +57,16 @@ namespace IntentionalSolutionVersion
 					var lfn = i.GetFileName();
 					if (!string.IsNullOrEmpty(lfn)) l.Add(lfn);
 				}
-				try { d.Add(fn, l); } catch { bad.Add(fn); }
+				if (l.Count > 0)
+				{
+					string fn = null;
+					try { fn = p.FileName.Contains('\\') ? p.FileName : p.FullName; } catch { }
+					if (string.IsNullOrEmpty(fn)) fn = p.Name;
+					try { d.Add(fn, l); } catch { bad.Add(fn); }
+				}
 			}
 			if (bad.Count > 0)
-				System.Windows.Forms.MessageBox.Show("Duplicate projects. Please report as issue and include this text. (Press Ctrl-C to capture)\n\r" + string.Join("\n\r", bad) + "\n\r\n\rFound projects:" + string.Join("\n\r", d.Keys));
+				ShowMessageBox("Duplicate projects. Please report as issue and include this text. (Press Ctrl-C to capture)\n\r" + string.Join("\n\r", bad) + "\n\r\n\rFound projects:" + string.Join("\n\r", d.Keys));
 			return d;
 		}
 
@@ -87,6 +93,11 @@ namespace IntentionalSolutionVersion
 				foreach (var child in children(current).Reverse())
 					stack.Push(child);
 			}
+		}
+
+		private static void ShowMessageBox(string text)
+		{
+			VsShellUtilities.ShowMessageBox(Package.GetGlobalService(typeof(IServiceProvider)) as IServiceProvider, text, null, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 		}
 	}
 }

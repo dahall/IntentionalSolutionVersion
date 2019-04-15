@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -12,7 +13,7 @@ namespace IntentionalSolutionVersion
 	{
 		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
 
-		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, IDictionary<string, List<string>> slnFiles)
+		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, IDictionary<string, List<string>> slnFiles, IEnumerable<string> asmInfoFiles, CancellationToken cancellationToken = default, IProgress<(int, string)> progress = null)
 		{
 			const string msbld = "http://schemas.microsoft.com/developer/msbuild/2003";
 			const string nuspec = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
@@ -28,7 +29,9 @@ namespace IntentionalSolutionVersion
 					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
 				foreach (var proj in slnFiles.Keys)
 				{
+					if (cancellationToken.IsCancellationRequested) break;
 					var projName = Path.GetFileName(proj.TrimEnd('\\'));
+					progress?.Report((0, $"Retrieving version information for files in {projName}..."));
 
 					void AddVer(VerData ver) { ver.Project = projName; d.Add(ver); }
 
@@ -67,7 +70,7 @@ namespace IntentionalSolutionVersion
 							break;
 
 						case "":
-							foreach (var aifn in Properties.Settings.Default.AssemblyInfoFileNames.Split(';'))
+							foreach (var aifn in asmInfoFiles)
 							{
 								foreach (var fn in GetProjectFiles(slnFiles[proj], aifn))
 								{
@@ -93,13 +96,64 @@ namespace IntentionalSolutionVersion
 						default:
 							break;
 					}
+
+					progress?.Report((1, ""));
 				}
 
 				return d;
 			});
+
+
+			IEnumerable<string> GetProjectFiles(IEnumerable<string> projectFiles, string name)
+			{
+				foreach (var i in projectFiles)
+				{
+					if (i != null && (name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
+						(name[0] != '.' && Path.GetFileName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+						yield return i;
+				}
+			}
+
+			IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
+			{
+				var xmlDoc = new XmlDocument();
+				xmlDoc.Load(fn);
+				var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
+				nsp.AddNamespace("x", ns);
+				var nodes = xmlDoc.SelectNodes(xmlPath, nsp);
+				if (nodes is null || nodes.Count == 0)
+				{
+					ns = "";
+					nsp.AddNamespace("x", ns);
+					nodes = xmlDoc.SelectNodes(xmlPath, nsp);
+				}
+				for (var i = 0; !(nodes is null) && i < nodes.Count; i++)
+				{
+					if (regEx == null) regEx = defRegex;
+					var m = Regex.Match(nodes[i].InnerText, regEx);
+					if (m.Success)
+						yield return new VerData(fn, new Version(m.Groups[1].Value), nodes[i].OuterXml, nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+				}
+			}
+
+			bool TryGetAttrVersion(string fn, string attr, out VerData ver)
+			{
+				var expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
+				var n = 0;
+				foreach (var l in File.ReadLines(fn))
+				{
+					n++;
+					var m = Regex.Match(l, expr);
+					if (!m.Success) continue;
+					ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
+					return true;
+				}
+				ver = null;
+				return false;
+			}
 		}
 
-		public static async Task UpdateAsync(IEnumerable<VerData> vers, Version newVer)
+		public static async Task UpdateAsync(IEnumerable<VerData> vers, Version newVer, CancellationToken cancellationToken = default, IProgress<(int, string)> progress = null)
 		{
 			await Task.Run(() =>
 			{
@@ -112,6 +166,8 @@ namespace IntentionalSolutionVersion
 #else
 						pver.FileName;
 #endif
+					if (cancellationToken.IsCancellationRequested) break;
+					progress?.Report((0, $"Updating version information in {pver.FileName}..."));
 					System.Diagnostics.Debug.WriteLine($"Processing {pver.FileName}...");
 					if (int.TryParse(pver.Locator, out _))
 					{
@@ -153,65 +209,18 @@ namespace IntentionalSolutionVersion
 #if NOSAVE
 					System.Diagnostics.Process.Start(saveFn);
 #endif
+					progress?.Report((1, ""));
 				}
 			});
-		}
 
-		private static IEnumerable<string> GetProjectFiles(IEnumerable<string> projectFiles, string name)
-		{
-			foreach (var i in projectFiles)
+			string ReplaceGroup(string input, string pattern, string replacement)
 			{
-				if (i != null && (name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
-					(name[0] != '.' && Path.GetFileName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)))
-					yield return i;
+				return Regex.Replace(input, pattern, m =>
+				{
+					var grp = m.Groups[1];
+					return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
+				});
 			}
-		}
-
-		private static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
-		{
-			var xmlDoc = new XmlDocument();
-			xmlDoc.Load(fn);
-			var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
-			nsp.AddNamespace("x", ns);
-			var nodes = xmlDoc.SelectNodes(xmlPath, nsp);
-			if (nodes is null || nodes.Count == 0)
-			{
-				ns = "";
-				nsp.AddNamespace("x", ns);
-				nodes = xmlDoc.SelectNodes(xmlPath, nsp);
-			}
-			for (var i = 0; !(nodes is null) && i < nodes.Count; i++)
-			{
-				if (regEx == null) regEx = defRegex;
-				var m = Regex.Match(nodes[i].InnerText, regEx);
-				if (m.Success)
-					yield return new VerData(fn, new Version(m.Groups[1].Value), nodes[i].OuterXml, nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
-			}
-		}
-
-		private static string ReplaceGroup(string input, string pattern, string replacement)
-		{
-			return Regex.Replace(input, pattern, m =>
-			{
-				var grp = m.Groups[1];
-				return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
-			});
-		}
-
-		private static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
-		{
-			var expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
-			var n = 0;
-			foreach (var l in File.ReadLines(fn))
-			{
-				n++;
-				var m = Regex.Match(l, expr);
-				if (!m.Success) continue;
-				ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
-				return true;
-			}
-			ver = null;
-			return false;
 		}
 	}
 }

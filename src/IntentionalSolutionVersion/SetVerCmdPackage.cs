@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
@@ -21,14 +20,13 @@ namespace IntentionalSolutionVersion
 	/// </para>
 	/// </remarks>
 	[PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-	[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
-	[ProvideMenuResource("Menus.ctmenu", 1)]
 	[Guid(PackageGuidString)]
-	[ProvideUIContextRule(UIContextGuid, "Solution open", "HasCSProj", new[] { "HasCSProj" }, new[] { "SolutionHasProjectCapability:CSharp" })]
+	[ProvideMenuResource("Menus.ctmenu", 1)]
+	[InstalledProductRegistration("#110", "#112", "1.0.6", IconResourceID = 400)] // Info on this package for Help/About
 	public sealed class SetVerCmdPackage : AsyncPackage
 	{
+		/// <summary>IntentionalSolutionVersionPackage GUID string.</summary>
 		public const string PackageGuidString = "4b8ed92a-039f-47c6-a431-72890c0ba868";
-		public const string UIContextGuid = "FFC6DE6D-C641-42A2-B2D5-65C9932AF168";
 
 		/// <summary>
 		/// Initialization of the package; this method is called right after the package is sited, so this is the place where you can put all
@@ -47,7 +45,7 @@ namespace IntentionalSolutionVersion
 			// When initialized asynchronously, the current thread may be a background thread at this point. Do any initialization that
 			// requires the UI thread after switching to the UI thread.
 			await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-			await SetVerCmd.InitializeAsync(this);
+		    await SetVerCmd.InitializeAsync(this);
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+
 using Microsoft.VisualStudio.Shell;
 
 namespace IntentionalSolutionVersion
@@ -37,7 +38,7 @@ namespace IntentionalSolutionVersion
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(slnFileName, sln));
+			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(slnFileName, sln, Properties.Settings.Default.AssemblyInfoFileNames.Split(';')));
 			var cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
