@@ -3,7 +3,7 @@ using System.IO;
 
 namespace IntentionalSolutionVersion
 {
-	internal class VerData
+	internal class VerData : IEquatable<VerData>
 	{
 		public VerData(string fn, Version ver, string line, string loc, string regex, string ns = null)
 		{
@@ -20,6 +20,8 @@ namespace IntentionalSolutionVersion
 		public string Project { get; set; }
 		public string RegEx { get; set; }
 		public Version Version { get; set; }
+
+		public bool Equals(VerData other) => FileName == other.FileName && LineText == other.LineText && RegEx == other.RegEx;
 
 		public override string ToString() => $"{Path.GetFileName(FileName)}={Version}:{LineText}";
 	}

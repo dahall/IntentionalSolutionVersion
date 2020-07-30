@@ -31,7 +31,7 @@ namespace IntentionalSolutionVersion
 
 			return await Task.Run(() =>
 			{
-				var d = new List<VerData>();
+				var d = new HashSet<VerData>(EqualityComparer<VerData>.Default);
 				if (!string.IsNullOrEmpty(slnPath))
 					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
 				foreach (var proj in slnFiles.Keys)
@@ -41,22 +41,13 @@ namespace IntentionalSolutionVersion
 					progress?.Report((0, $"Retrieving version information for files in {projName}..."));
 
 					var foundVer = false;
-					void AddVer(VerData ver) { ver.Project = projName; d.Add(ver); foundVer = true; }
+					void AddVer(VerData ver) { if (!d.Contains(ver)) { ver.Project = projName; d.Add(ver); foundVer = true; } }
 
 					switch (Path.GetExtension(proj).ToLowerInvariant())
 					{
 						case ".csproj":
 						case ".vbproj":
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
-								AddVer(ver);
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:ApplicationVersion", msbld, null))
-								AddVer(ver);
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:ItemGroup/x:PackageReference/x:Version", msbld, null))
-								AddVer(ver);
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:VersionPrefix", msbld, null))
-								AddVer(ver);
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, nupkgRegex))
-								AddVer(ver);
+							ProcessProjFile(proj, AddVer);
 							foreach (var fn in GetProjectFiles(slnFiles[proj], ".vsixmanifest"))
 							{
 								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Metadata/x:Identity/@Version", vsix, null))
@@ -91,17 +82,12 @@ namespace IntentionalSolutionVersion
 										AddVer(aver);
 								}
 							}
+							foreach (var fn in Directory.GetFiles(Path.GetDirectoryName(string.IsNullOrEmpty(Path.GetExtension(proj)) ? slnPath : proj), "Directory.Build.*"))
+								ProcessProjFile(fn, AddVer);
 							foreach (var fn in GetProjectFiles(slnFiles[proj], ".nuspec"))
+								ProcessNuspecFile(fn, AddVer);
+							if (!foundVer && includeWithoutVer)
 							{
-								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
-									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
-									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"\[(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\]"))
-									AddVer(ver);
-							}
-                            if (!foundVer && includeWithoutVer)
-                            {
 								// Set invalid version, permit the initialization of all project without any version
 								AddVer(new VerData(proj, new Version(0,0,0), "<Version>0.0.0</Version>", null, null));
 							}
@@ -114,7 +100,7 @@ namespace IntentionalSolutionVersion
 					progress?.Report((1, ""));
 				}
 
-				return d;
+				return d.ToList();
 			});
 
 
@@ -148,6 +134,30 @@ namespace IntentionalSolutionVersion
 					if (m.Success)
 						yield return new VerData(fn, new Version(m.Groups[1].Value), nodes[i].OuterXml, nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
 				}
+			}
+
+			void ProcessNuspecFile(string fn, Action<VerData> addVer)
+			{
+				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?"))
+					addVer(ver);
+			}
+
+			void ProcessProjFile(string projFile, Action<VerData> addVer)
+			{
+				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:ApplicationVersion", msbld, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:PackageReference/x:Version", msbld, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:VersionPrefix", msbld, null))
+					addVer(ver);
+				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, nupkgRegex))
+					addVer(ver);
 			}
 
 			bool TryGetAttrVersion(string fn, string attr, out VerData ver)
@@ -217,9 +227,9 @@ namespace IntentionalSolutionVersion
 						nsp.AddNamespace("x", pver.Namespace ?? string.Empty);
 						foreach (var ver in grp)
 							if (ver.Locator == null)
-                            {
+							{
 								foreach (XmlNode node in xmlDoc.SelectNodes("/x:Project/x:PropertyGroup", nsp))
-                                {
+								{
 									bool validForVersion = false;
 									foreach (XmlNode child in node.ChildNodes)
 										if (child.Name.Equals("RootNamespace", StringComparison.OrdinalIgnoreCase))
@@ -233,7 +243,7 @@ namespace IntentionalSolutionVersion
 								}
 							}
 							else
-                            {
+							{
 								foreach (XmlNode node in xmlDoc.SelectNodes(ver.Locator, nsp))
 									node.InnerText = ReplaceGroup(node.InnerText, ver.RegEx, newVer.ToString());
 							}
