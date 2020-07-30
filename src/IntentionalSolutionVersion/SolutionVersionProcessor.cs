@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +15,12 @@ namespace IntentionalSolutionVersion
 	{
 		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
 
-		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, IDictionary<string, List<string>> slnFiles, IEnumerable<string> asmInfoFiles, CancellationToken cancellationToken = default, IProgress<(int, string)> progress = null)
+		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, 
+						IDictionary<string, List<string>> slnFiles, 
+						IEnumerable<string> asmInfoFiles, 
+						CancellationToken cancellationToken = default, 
+						IProgress<(int, string)> progress = null,
+						bool includeWithoutVer = true)
 		{
 			const string msbld = "http://schemas.microsoft.com/developer/msbuild/2003";
 			const string nuspec = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
@@ -33,11 +40,13 @@ namespace IntentionalSolutionVersion
 					var projName = Path.GetFileName(proj.TrimEnd('\\'));
 					progress?.Report((0, $"Retrieving version information for files in {projName}..."));
 
-					void AddVer(VerData ver) { ver.Project = projName; d.Add(ver); }
+					var foundVer = false;
+					void AddVer(VerData ver) { ver.Project = projName; d.Add(ver); foundVer = true; }
 
 					switch (Path.GetExtension(proj).ToLowerInvariant())
 					{
 						case ".csproj":
+						case ".vbproj":
 							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
 								AddVer(ver);
 							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:ApplicationVersion", msbld, null))
@@ -90,6 +99,11 @@ namespace IntentionalSolutionVersion
 									AddVer(ver);
 								foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"\[(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\]"))
 									AddVer(ver);
+							}
+                            if (!foundVer && includeWithoutVer)
+                            {
+								// Set invalid version, permit the initialization of all project without any version
+								AddVer(new VerData(proj, new Version(0,0,0), "<Version>0.0.0</Version>", null, null));
 							}
 							break;
 
@@ -200,10 +214,29 @@ namespace IntentionalSolutionVersion
 						var xmlDoc = new XmlDocument();
 						xmlDoc.Load(pver.FileName);
 						var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
-						nsp.AddNamespace("x", pver.Namespace);
+						nsp.AddNamespace("x", pver.Namespace ?? string.Empty);
 						foreach (var ver in grp)
-							foreach (XmlNode node in xmlDoc.SelectNodes(ver.Locator, nsp))
-								node.InnerText = ReplaceGroup(node.InnerText, ver.RegEx, newVer.ToString());
+							if (ver.Locator == null)
+                            {
+								foreach (XmlNode node in xmlDoc.SelectNodes("/x:Project/x:PropertyGroup", nsp))
+                                {
+									bool validForVersion = false;
+									foreach (XmlNode child in node.ChildNodes)
+										if (child.Name.Equals("RootNamespace", StringComparison.OrdinalIgnoreCase))
+											validForVersion = true;
+									if (validForVersion)
+									{ 
+										var nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
+										nodeVer.InnerText = newVer.ToString();
+										node.AppendChild(nodeVer);
+									}
+								}
+							}
+							else
+                            {
+								foreach (XmlNode node in xmlDoc.SelectNodes(ver.Locator, nsp))
+									node.InnerText = ReplaceGroup(node.InnerText, ver.RegEx, newVer.ToString());
+							}
 						xmlDoc.Save(saveFn);
 					}
 #if NOSAVE
