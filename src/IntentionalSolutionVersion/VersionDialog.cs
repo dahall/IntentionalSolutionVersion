@@ -42,7 +42,7 @@ namespace IntentionalSolutionVersion
 		}
 
 		protected void RefreshProjectsVer()
-        {
+		{
 			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(
 																	slnFileName, sln,
 																	Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
@@ -184,9 +184,9 @@ namespace IntentionalSolutionVersion
 			}
 		}
 
-        private void includeWithoutVer_CheckedChanged(object sender, EventArgs e)
-        {
+		private void includeWithoutVer_CheckedChanged(object sender, EventArgs e)
+		{
 			RefreshProjectsVer();
 		}
-    }
+	}
 }
