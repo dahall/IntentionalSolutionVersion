@@ -38,7 +38,16 @@ namespace IntentionalSolutionVersion
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(slnFileName, sln, Properties.Settings.Default.AssemblyInfoFileNames.Split(';')));
+			RefreshProjectsVer();
+		}
+
+		protected void RefreshProjectsVer()
+        {
+			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(
+																	slnFileName, sln,
+																	Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
+																	includeWithoutVer: includeWithoutVer.Checked)
+														);
 			var cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
@@ -174,5 +183,10 @@ namespace IntentionalSolutionVersion
 				return asc ? result : -result;
 			}
 		}
-	}
+
+        private void includeWithoutVer_CheckedChanged(object sender, EventArgs e)
+        {
+			RefreshProjectsVer();
+		}
+    }
 }
