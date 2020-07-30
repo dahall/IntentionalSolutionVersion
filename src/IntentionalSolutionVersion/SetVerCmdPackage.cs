@@ -22,7 +22,7 @@ namespace IntentionalSolutionVersion
 	[PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
 	[Guid(PackageGuidString)]
 	[ProvideMenuResource("Menus.ctmenu", 1)]
-	[InstalledProductRegistration("#110", "#112", "1.0.6", IconResourceID = 400)] // Info on this package for Help/About
+	[InstalledProductRegistration("#110", "#112", "1.0.7", IconResourceID = 400)] // Info on this package for Help/About
 	public sealed class SetVerCmdPackage : AsyncPackage
 	{
 		/// <summary>IntentionalSolutionVersionPackage GUID string.</summary>
