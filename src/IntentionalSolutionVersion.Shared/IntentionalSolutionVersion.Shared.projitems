@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>0a017eef-5861-44ab-88a3-ca2b7a01997c</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>IntentionalSolutionVersion.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EnvDTEExt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SetVerCmd.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SetVerCmdPackage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SolutionVersionProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionDialog.Designer.cs">
+      <DependentUpon>VersionDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionEdit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionEdit.Designer.cs">
+      <DependentUpon>VersionEdit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionExt.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)VersionDialog.resx">
+      <DependentUpon>VersionDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)VersionEdit.resx">
+      <DependentUpon>VersionEdit.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
