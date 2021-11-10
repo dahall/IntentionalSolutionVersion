@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-
-using Microsoft.VisualStudio.Shell;
 
 namespace IntentionalSolutionVersion
 {
@@ -48,22 +47,22 @@ namespace IntentionalSolutionVersion
 																	Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
 																	includeWithoutVer: includeWithoutVer.Checked)
 														);
-			var cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
+			Version cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
 			groupByFileNameToolStripMenuItem_Click(this, EventArgs.Empty);
 		}
 
-		private void cancelBtn_Click(object sender, EventArgs e)
-		{
-			Close();
-		}
+		private void cancelBtn_Click(object sender, EventArgs e) => Close();
 
 		private void CheckAllItems(bool isChecked)
 		{
 			list.BeginUpdate();
 			foreach (ListViewItem i in list.Items)
+			{
 				i.Checked = isChecked;
+			}
+
 			list.EndUpdate();
 		}
 
@@ -71,7 +70,10 @@ namespace IntentionalSolutionVersion
 		{
 			list.BeginUpdate();
 			foreach (ListViewItem i in list.Items)
-				i.Checked = ((VerData) i.Tag).Version.CompareTo(ver, VersionComparison.IgnoreUnset) == 0;
+			{
+				i.Checked = ((VerData)i.Tag).Version.CompareTo(ver, VersionComparison.IgnoreUnset) == 0;
+			}
+
 			list.EndUpdate();
 			NewVersion = ver.Increment();
 		}
@@ -84,18 +86,25 @@ namespace IntentionalSolutionVersion
 			if (groupByFileNameToolStripMenuItem.Checked)
 			{
 				list.ShowGroups = true;
-				foreach (var grp in data.GroupBy(v => v.FileName))
+				foreach (IGrouping<string, VerData> grp in data.GroupBy(v => v.FileName))
+				{
 					list.Groups.Add(grp.Key, $"{Path.GetFileName(grp.Key)} ({grp.First().Project})");
+				}
 			}
 			else
 			{
 				list.ShowGroups = false;
 			}
-			foreach (var ver in data)
+			foreach (VerData ver in data)
+			{
 				list.Items.Add(MakeLVItem(ver));
+			}
+
 			list.Sort();
 			list.EndUpdate();
 		}
+
+		private void includeWithoutVer_CheckedChanged(object sender, EventArgs e) => RefreshProjectsVer();
 
 		private void list_ColumnClick(object sender, ColumnClickEventArgs e)
 		{
@@ -103,90 +112,88 @@ namespace IntentionalSolutionVersion
 			list.Sort();
 		}
 
-		private void List_ItemChecked(object sender, ItemCheckedEventArgs e)
-		{
-			okBtn.Enabled = list.CheckedIndices.Count > 0;
-		}
+		private void List_ItemChecked(object sender, ItemCheckedEventArgs e) => okBtn.Enabled = list.CheckedIndices.Count > 0;
 
 		private void list_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Right && (list.FocusedItem?.Bounds.Contains(e.Location) ?? false))
+			{
 				listCtxMenu.Show(Cursor.Position);
+			}
 		}
 
-		private ListViewItem MakeLVItem(VerData ver)
-		{
-			return new ListViewItem(new[] { ver.Project, Path.GetFileName(ver.FileName), ver.Version.ToString(), ver.LineText }) { Tag = ver, ToolTipText = ver.FileName, Group = groupByFileNameToolStripMenuItem.Checked ? list.Groups[ver.FileName] : null };
-		}
+		private ListViewItem MakeLVItem(VerData ver) => new(new[] { ver.Project, Path.GetFileName(ver.FileName), ver.Version.ToString(), ver.LineText }) { Tag = ver, ToolTipText = ver.FileName, Group = groupByFileNameToolStripMenuItem.Checked ? list.Groups[ver.FileName] : null };
 
+#pragma warning disable VSTHRD100 // Avoid async void methods
 		private async void okBtn_Click(object sender, EventArgs e)
+#pragma warning restore VSTHRD100 // Avoid async void methods
 		{
-			var items = list.Items.Cast<ListViewItem>().Where(i => i.Checked).Select(i => i.Tag as VerData).ToList();
+			List<VerData> items = list.Items.Cast<ListViewItem>().Where(i => i.Checked).Select(i => i.Tag as VerData).ToList();
 			await SolutionVersionProcessor.UpdateAsync(items, NewVersion);
 			Close();
 		}
 
 		private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var fn = ((VerData)list.FocusedItem?.Tag)?.FileName;
-			if (fn == null) return;
+			string fn = ((VerData)list.FocusedItem?.Tag)?.FileName;
+			if (fn == null)
+			{
+				return;
+			}
+
 			System.Diagnostics.Process.Start(fn);
 		}
 
-		private void selAllBtn_Click(object sender, EventArgs e)
-		{
-			CheckAllItems(true);
-		}
+		private void selAllBtn_Click(object sender, EventArgs e) => CheckAllItems(true);
 
 		private void selectAllWithThisVersionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var v = ((VerData)list.FocusedItem?.Tag)?.Version;
-			if (v == null) return;
+			Version v = ((VerData)list.FocusedItem?.Tag)?.Version;
+			if (v == null)
+			{
+				return;
+			}
+
 			SelVersion = v;
 			CheckAllMatchingItems(v);
 		}
 
-		private void selNoneBtn_Click(object sender, EventArgs e)
-		{
-			CheckAllItems(false);
-		}
+		private void selNoneBtn_Click(object sender, EventArgs e) => CheckAllItems(false);
 
-		private void selVerBtn_Click(object sender, EventArgs e)
-		{
-			CheckAllMatchingItems(SelVersion);
-		}
+		private void selVerBtn_Click(object sender, EventArgs e) => CheckAllMatchingItems(SelVersion);
 
-		class ListViewItemComparer : System.Collections.IComparer
+		private class ListViewItemComparer : System.Collections.IComparer
 		{
-			private int col;
 			private bool asc = true;
+			private int col;
+
 			public ListViewItemComparer(int column = 0) => col = column;
-			public int Column { get => col; set { asc = value != col || !asc; col = value; } }
+
+			public int Column
+			{ get => col; set { asc = value != col || !asc; col = value; } }
+
 			public int Compare(object x, object y)
 			{
 				int result;
-				var lvix = x as ListViewItem ?? throw new ArgumentException(nameof(x));
-				var lviy = y as ListViewItem ?? throw new ArgumentException(nameof(y));
+				ListViewItem lvix = x as ListViewItem ?? throw new ArgumentException(nameof(x));
+				ListViewItem lviy = y as ListViewItem ?? throw new ArgumentException(nameof(y));
 				switch (col)
 				{
 					case 0:
-						var pc = string.CompareOrdinal(lvix.SubItems[col].Text, lviy.SubItems[col].Text);
+						int pc = string.CompareOrdinal(lvix.SubItems[col].Text, lviy.SubItems[col].Text);
 						result = pc != 0 ? pc : string.CompareOrdinal(lvix.SubItems[1].Text, lviy.SubItems[1].Text);
 						break;
+
 					case 2:
 						result = ((VerData)lvix.Tag).Version.CompareTo(((VerData)lviy.Tag).Version);
 						break;
+
 					default:
 						result = string.CompareOrdinal(lvix.SubItems[col].Text, lviy.SubItems[col].Text);
 						break;
 				}
 				return asc ? result : -result;
 			}
-		}
-
-		private void includeWithoutVer_CheckedChanged(object sender, EventArgs e)
-		{
-			RefreshProjectsVer();
 		}
 	}
 }

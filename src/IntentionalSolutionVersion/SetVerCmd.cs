@@ -13,7 +13,7 @@ namespace IntentionalSolutionVersion
 		public const int CommandId = 0x0100;
 
 		/// <summary>Command menu group (command set GUID).</summary>
-		public static readonly Guid CommandSet = new Guid("8cd00976-86c6-4ddd-9c4f-c758bc01d6e4");
+		public static readonly Guid CommandSet = new("8cd00976-86c6-4ddd-9c4f-c758bc01d6e4");
 
 		/// <summary>VS Package that provides this command, not null.</summary>
 		private readonly AsyncPackage package;
@@ -30,8 +30,8 @@ namespace IntentionalSolutionVersion
 			commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 			Dte = dte;
 
-			var menuCommandID = new CommandID(CommandSet, CommandId);
-			var menuItem = new MenuCommand(Execute, menuCommandID);
+			CommandID menuCommandID = new CommandID(CommandSet, CommandId);
+			MenuCommand menuItem = new MenuCommand(Execute, menuCommandID);
 			commandService.AddCommand(menuItem);
 		}
 
@@ -41,7 +41,7 @@ namespace IntentionalSolutionVersion
 		public DTE Dte { get; }
 
 		/// <summary>Gets the service provider from the owner package.</summary>
-		private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider => this.package;
+		private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider => package;
 
 		/// <summary>Initializes the singleton instance of the command.</summary>
 		/// <param name="package">Owner package, not null.</param>
@@ -50,8 +50,8 @@ namespace IntentionalSolutionVersion
 			// Switch to the main thread - the call to AddCommand in SetVerCmd's constructor requires the UI thread.
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-			var commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-			var dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
+			OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+			DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
 			Instance = new SetVerCmd(package, dte, commandService);
 		}
 

@@ -28,29 +28,35 @@ namespace IntentionalSolutionVersion
 		{
 			get
 			{
-				var maj = GetValue(verMajor, 0);
-				var min = GetValue(verMinor, 0);
-				var bld = GetValue(verBuild);
-				var rev = ShowRevision ? GetValue(verRev) : -1;
+				int maj = GetValue(verMajor, 0);
+				int min = GetValue(verMinor, 0);
+				int bld = GetValue(verBuild);
+				int rev = ShowRevision ? GetValue(verRev) : -1;
 				return bld == -1 ? new Version(maj, min) : (rev == -1 ? new Version(maj, min, bld) : new Version(maj, min, bld, rev));
 			}
 
 			set
 			{
-				if (value == null) value = new Version();
+				if (value == null)
+				{
+					value = new Version();
+				}
+
 				verMajor.Text = value.Major.ToString();
 				verMinor.Text = value.Minor.ToString();
 				verBuild.Text = value.Build == -1 ? "" : value.Build.ToString();
 				if (ShowRevision)
+				{
 					verRev.Text = value.Revision == -1 ? "" : value.Revision.ToString();
+				}
 			}
 		}
 
-		private static int GetValue(TextBox tb, int def = -1) => tb.TextLength == 0 || !int.TryParse(tb.Text, out var val) ? def : val;
+		private bool ShouldSerializeValue => Value != new Version();
+
+		private static int GetValue(TextBox tb, int def = -1) => tb.TextLength == 0 || !int.TryParse(tb.Text, out int val) ? def : val;
 
 		private void ResetValue() => Value = new Version();
-
-		private bool ShouldSerializeValue => Value != new Version();
 
 		private void verMajor_KeyDown(object sender, KeyEventArgs e) => e.SuppressKeyPress = !(e.KeyCode == Keys.Back || (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9 && e.Modifiers != Keys.Shift) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9));
 	}

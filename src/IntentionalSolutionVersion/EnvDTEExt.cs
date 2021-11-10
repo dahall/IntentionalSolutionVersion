@@ -15,7 +15,9 @@ namespace IntentionalSolutionVersion
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
 			return (project?.ProjectItems?.Cast<ProjectItem>() ??
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
 				new ProjectItem[0]).SelectMany(ti => TreeTraversal(ti, i => i.ProjectItems?.Cast<ProjectItem>().Where(i2 => kind == null || kind == i2.Kind) ?? new ProjectItem[0]));
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
 		}
 
 		public static IEnumerable<Project> EnumProjects(this Solution sln)
@@ -29,7 +31,7 @@ namespace IntentionalSolutionVersion
 						yield return ccp;
 			}
 
-			Project PI2P(ProjectItem projItem) => (projItem.SubProject ?? projItem.Object) as Project;
+			static Project PI2P(ProjectItem projItem) => (projItem.SubProject ?? projItem.Object) as Project;
 		}
 
 		public static string GetFileName(this ProjectItem item)

@@ -13,10 +13,10 @@ namespace IntentionalSolutionVersion
 	{
 		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
 
-		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath, 
-						IDictionary<string, List<string>> slnFiles, 
-						IEnumerable<string> asmInfoFiles, 
-						CancellationToken cancellationToken = default, 
+		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath,
+						IDictionary<string, List<string>> slnFiles,
+						IEnumerable<string> asmInfoFiles,
+						CancellationToken cancellationToken = default,
 						IProgress<(int, string)> progress = null,
 						bool includeWithoutVer = true)
 		{
@@ -29,16 +29,23 @@ namespace IntentionalSolutionVersion
 
 			return await Task.Run(() =>
 			{
-				var d = new HashSet<VerData>(EqualityComparer<VerData>.Default);
+				HashSet<VerData> d = new(EqualityComparer<VerData>.Default);
 				if (!string.IsNullOrEmpty(slnPath))
-					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
-				foreach (var proj in slnFiles.Keys)
 				{
-					if (cancellationToken.IsCancellationRequested) break;
-					var projName = Path.GetFileName(proj.TrimEnd('\\'));
+					Directory.SetCurrentDirectory(Path.GetDirectoryName(slnPath));
+				}
+
+				foreach (string proj in slnFiles.Keys)
+				{
+					if (cancellationToken.IsCancellationRequested)
+					{
+						break;
+					}
+
+					string projName = Path.GetFileName(proj.TrimEnd('\\'));
 					progress?.Report((0, $"Retrieving version information for files in {projName}..."));
 
-					var foundVer = false;
+					bool foundVer = false;
 					void AddVer(VerData ver) { if (!d.Contains(ver)) { ver.Project = projName; d.Add(ver); foundVer = true; } }
 
 					switch (Path.GetExtension(proj).ToLowerInvariant())
@@ -46,48 +53,75 @@ namespace IntentionalSolutionVersion
 						case ".csproj":
 						case ".vbproj":
 							ProcessProjFile(proj, AddVer);
-							foreach (var fn in GetProjectFiles(slnFiles[proj], ".vsixmanifest"))
+							foreach (string fn in GetProjectFiles(slnFiles[proj], ".vsixmanifest"))
 							{
-								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Metadata/x:Identity/@Version", vsix, null))
+								foreach (VerData ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Metadata/x:Identity/@Version", vsix, null))
+								{
 									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Type", vsix, nupkgRegex))
+								}
+
+								foreach (VerData ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Type", vsix, nupkgRegex))
+								{
 									AddVer(ver);
-								foreach (var ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Path", vsix, nupkgRegex))
+								}
+
+								foreach (VerData ver in GetXmlTagVersions(fn, "/x:PackageManifest/x:Assets/x:Asset/@Path", vsix, nupkgRegex))
+								{
 									AddVer(ver);
+								}
 							}
-							foreach (var fn in GetProjectFiles(slnFiles[proj], ".vstemplate"))
+							foreach (string fn in GetProjectFiles(slnFiles[proj], ".vstemplate"))
 							{
-								foreach (var ver in GetXmlTagVersions(fn, "/x:VSTemplate/x:WizardData/x:packages/x:package/@version", vst, null))
+								foreach (VerData ver in GetXmlTagVersions(fn, "/x:VSTemplate/x:WizardData/x:packages/x:package/@version", vst, null))
+								{
 									AddVer(ver);
+								}
 							}
 							goto case "";
 
 						case ".shfbproj":
-							foreach (var ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:HelpFileVersion", msbld, null))
+							foreach (VerData ver in GetXmlTagVersions(proj, "/x:Project/x:PropertyGroup/x:HelpFileVersion", msbld, null))
+							{
 								AddVer(ver);
+							}
+
 							break;
 
 						case "":
-							foreach (var aifn in asmInfoFiles)
+							foreach (string aifn in asmInfoFiles)
 							{
-								foreach (var fn in GetProjectFiles(slnFiles[proj], aifn))
+								foreach (string fn in GetProjectFiles(slnFiles[proj], aifn))
 								{
-									if (TryGetAttrVersion(fn, "AssemblyVersion", out var aver))
+									if (TryGetAttrVersion(fn, "AssemblyVersion", out VerData aver))
+									{
 										AddVer(aver);
+									}
+
 									if (TryGetAttrVersion(fn, "AssemblyFileVersion", out aver))
+									{
 										AddVer(aver);
+									}
+
 									if (TryGetAttrVersion(fn, "AssemblyInformationalVersion", out aver))
+									{
 										AddVer(aver);
+									}
 								}
 							}
-							foreach (var fn in Directory.GetFiles(Path.GetDirectoryName(string.IsNullOrEmpty(Path.GetExtension(proj)) ? slnPath : proj), "Directory.Build.*"))
+							foreach (string fn in Directory.GetFiles(Path.GetDirectoryName(string.IsNullOrEmpty(Path.GetExtension(proj)) ? slnPath : proj), "Directory.Build.*"))
+							{
 								ProcessProjFile(fn, AddVer);
-							foreach (var fn in GetProjectFiles(slnFiles[proj], ".nuspec"))
+							}
+
+							foreach (string fn in GetProjectFiles(slnFiles[proj], ".nuspec"))
+							{
 								ProcessNuspecFile(fn, AddVer);
+							}
+
 							if (!foundVer && includeWithoutVer)
 							{
 								// Set invalid version, permit the initialization of all project without any version
-								AddVer(new VerData(proj, new Version(0,0,0), "<Version>0.0.0</Version>", null, null));
+								AddVer(new VerData(proj, new Version(0, 0, 0), "<Version>0.0.0</Version>", null, null));
 							}
 							break;
 
@@ -103,69 +137,103 @@ namespace IntentionalSolutionVersion
 
 			static IEnumerable<string> GetProjectFiles(IEnumerable<string> projectFiles, string name)
 			{
-				foreach (var i in projectFiles)
+				foreach (string i in projectFiles)
 				{
 					if (i != null && (name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
 						(name[0] != '.' && Path.GetFileName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+					{
 						yield return i;
+					}
 				}
 			}
 
 			static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
 			{
-				var xmlDoc = new XmlDocument();
+				XmlDocument xmlDoc = new();
 				xmlDoc.Load(fn);
-				var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
+				XmlNamespaceManager nsp = new(xmlDoc.NameTable);
 				nsp.AddNamespace("x", ns);
-				var nodes = xmlDoc.SelectNodes(xmlPath, nsp);
+				XmlNodeList nodes = xmlDoc.SelectNodes(xmlPath, nsp);
 				if (nodes is null || nodes.Count == 0)
 				{
 					ns = "";
 					nsp.AddNamespace("x", ns);
 					nodes = xmlDoc.SelectNodes(xmlPath, nsp);
 				}
-				for (var i = 0; !(nodes is null) && i < nodes.Count; i++)
+				for (int i = 0; !(nodes is null) && i < nodes.Count; i++)
 				{
-					if (regEx == null) regEx = defRegex;
-					var m = Regex.Match(nodes[i].InnerText, regEx);
+					if (regEx == null)
+					{
+						regEx = defRegex;
+					}
+
+					Match m = Regex.Match(nodes[i].InnerText, regEx);
 					if (m.Success)
+					{
 						yield return new VerData(fn, new Version(m.Groups[1].Value), nodes[i].OuterXml, nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+					}
 				}
 			}
 
 			static void ProcessNuspecFile(string fn, Action<VerData> addVer)
 			{
-				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
+				foreach (VerData ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspec, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?"))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:dependencies/x:dependency/@version", nuspec, @"(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?"))
+				{
 					addVer(ver);
+				}
 			}
 
 			static void ProcessProjFile(string projFile, Action<VerData> addVer)
 			{
-				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
+				foreach (VerData ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:ApplicationVersion", msbld, null))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:ApplicationVersion", msbld, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:PackageReference/x:Version", msbld, null))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:PackageReference/x:Version", msbld, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:VersionPrefix", msbld, null))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:VersionPrefix", msbld, null))
+				{
 					addVer(ver);
-				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, nupkgRegex))
+				}
+
+				foreach (VerData ver in GetXmlTagVersions(projFile, "/x:Project/x:ItemGroup/x:Content/@Include", msbld, nupkgRegex))
+				{
 					addVer(ver);
+				}
 			}
 
 			static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 			{
-				var expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
-				var n = 0;
-				foreach (var l in File.ReadLines(fn))
+				string expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
+				int n = 0;
+				foreach (string l in File.ReadLines(fn))
 				{
 					n++;
-					var m = Regex.Match(l, expr);
-					if (!m.Success) continue;
+					Match m = Regex.Match(l, expr);
+					if (!m.Success)
+					{
+						continue;
+					}
+
 					ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
 					return true;
 				}
@@ -178,58 +246,68 @@ namespace IntentionalSolutionVersion
 		{
 			await Task.Run(() =>
 			{
-				foreach (var grp in vers.GroupBy(v => v.FileName))
+				foreach (IGrouping<string, VerData> grp in vers.GroupBy(v => v.FileName))
 				{
-					var pver = grp.First();
-					var saveFn =
+					VerData pver = grp.First();
+					string saveFn =
 #if NOSAVE
 						Path.GetTempFileName();
 #else
 						pver.FileName;
 #endif
-					if (cancellationToken.IsCancellationRequested) break;
+					if (cancellationToken.IsCancellationRequested)
+					{
+						break;
+					}
+
 					progress?.Report((0, $"Updating version information in {pver.FileName}..."));
 					System.Diagnostics.Debug.WriteLine($"Processing {pver.FileName}...");
 					if (int.TryParse(pver.Locator, out _))
 					{
-						using var ms = new MemoryStream();
-						using (var rdr = new StreamReader(pver.FileName, System.Text.Encoding.UTF8, true))
+						using MemoryStream ms = new();
+						using (StreamReader rdr = new(pver.FileName, System.Text.Encoding.UTF8, true))
 						{
 							rdr.Peek();
-							var wr = new StreamWriter(ms, rdr.CurrentEncoding);
-							var lineLookup = grp.ToDictionary(v => int.Parse(v.Locator));
-							for (var i = 0; !rdr.EndOfStream; i++)
+							StreamWriter wr = new(ms, rdr.CurrentEncoding);
+							Dictionary<int, VerData> lineLookup = grp.ToDictionary(v => int.Parse(v.Locator));
+							for (int i = 0; !rdr.EndOfStream; i++)
 							{
-								var l = rdr.ReadLine();
-								wr.WriteLine(lineLookup.TryGetValue(i + 1, out var ver)
+								string l = rdr.ReadLine();
+								wr.WriteLine(lineLookup.TryGetValue(i + 1, out VerData ver)
 									? ReplaceGroup(l, ver.RegEx, newVer.ToString())
 									: l);
 							}
 							wr.Flush();
 						}
 						ms.Seek(0, SeekOrigin.Begin);
-						using var fs = new FileStream(saveFn, FileMode.Truncate, FileAccess.Write);
+						using FileStream fs = new(saveFn, FileMode.Truncate, FileAccess.Write);
 						ms.CopyTo(fs);
 						fs.Flush();
 					}
 					else
 					{
-						var xmlDoc = new XmlDocument();
+						XmlDocument xmlDoc = new();
 						xmlDoc.Load(pver.FileName);
-						var nsp = new XmlNamespaceManager(xmlDoc.NameTable);
+						XmlNamespaceManager nsp = new(xmlDoc.NameTable);
 						nsp.AddNamespace("x", pver.Namespace ?? string.Empty);
-						foreach (var ver in grp)
+						foreach (VerData ver in grp)
+						{
 							if (ver.Locator == null)
 							{
 								foreach (XmlNode node in xmlDoc.SelectNodes("/x:Project/x:PropertyGroup", nsp))
 								{
 									bool validForVersion = false;
 									foreach (XmlNode child in node.ChildNodes)
+									{
 										if (child.Name.Equals("RootNamespace", StringComparison.OrdinalIgnoreCase))
+										{
 											validForVersion = true;
+										}
+									}
+
 									if (validForVersion)
-									{ 
-										var nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
+									{
+										XmlNode nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
 										nodeVer.InnerText = newVer.ToString();
 										node.AppendChild(nodeVer);
 									}
@@ -238,8 +316,12 @@ namespace IntentionalSolutionVersion
 							else
 							{
 								foreach (XmlNode node in xmlDoc.SelectNodes(ver.Locator, nsp))
+								{
 									node.InnerText = ReplaceGroup(node.InnerText, ver.RegEx, newVer.ToString());
+								}
 							}
+						}
+
 						xmlDoc.Save(saveFn);
 					}
 #if NOSAVE
@@ -249,14 +331,11 @@ namespace IntentionalSolutionVersion
 				}
 			});
 
-			string ReplaceGroup(string input, string pattern, string replacement)
-			{
-				return Regex.Replace(input, pattern, m =>
-				{
-					var grp = m.Groups[1];
-					return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
-				});
-			}
+			string ReplaceGroup(string input, string pattern, string replacement) => Regex.Replace(input, pattern, m =>
+																								   {
+																									   Group grp = m.Groups[1];
+																									   return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
+																								   });
 		}
 	}
 }
