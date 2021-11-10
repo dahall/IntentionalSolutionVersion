@@ -8,6 +8,17 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IntentionalSolutionVersion.Shared", "IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.shproj", "{0A017EEF-5861-44AB-88A3-CA2B7A01997C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedFiles", "SharedFiles", "{79E88683-B380-4816-89A3-7320384549E0}"
+	ProjectSection(SolutionItems) = preProject
+		SharedFiles\AssemblyInfo.cs = SharedFiles\AssemblyInfo.cs
+		SharedFiles\Key.snk = SharedFiles\Key.snk
+		SharedFiles\license.txt = SharedFiles\license.txt
+		SharedFiles\Resources.resx = SharedFiles\Resources.resx
+		SharedFiles\Settings.settings = SharedFiles\Settings.settings
+		SharedFiles\SetVerCmd.png = SharedFiles\SetVerCmd.png
+		SharedFiles\SetVerCmdPackage.ico = SharedFiles\SetVerCmdPackage.ico
+		SharedFiles\SetVerCmdPackage.vsct = SharedFiles\SetVerCmdPackage.vsct
+		SharedFiles\SetVerCmdPreview.png = SharedFiles\SetVerCmdPreview.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

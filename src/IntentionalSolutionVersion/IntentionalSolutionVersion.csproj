@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\SharedFiles\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -53,23 +53,31 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
+    <Compile Include="..\SharedFiles\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\SharedFiles\Resources.Designer.cs">
+      <Link>Properties\Resources.Designer.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
+    <Compile Include="..\SharedFiles\Settings.Designer.cs">
+      <Link>Properties\Settings.Designer.cs</Link>
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\SharedFiles\Key.snk">
+      <Link>Key.snk</Link>
+    </None>
     <None Include="app.config" />
-    <None Include="Key.snk" />
-    <None Include="Properties\Settings.settings">
+    <None Include="..\SharedFiles\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
+      <Link>Properties\Settings.settings</Link>
+      <CustomToolNamespace>Properties</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="source.extension.vsixmanifest">
@@ -95,31 +103,37 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="SetVerCmdPackage.vsct">
+    <VSCTCompile Include="..\SharedFiles\SetVerCmdPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="license.txt">
+    <Content Include="..\SharedFiles\license.txt">
+      <Link>license.txt</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Resources\SetVerCmd.png">
+    <Content Include="..\SharedFiles\SetVerCmd.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
+      <Link>Resources\SetVerCmd.png</Link>
     </Content>
-    <Content Include="Resources\SetVerCmdPackage.ico">
+    <Content Include="..\SharedFiles\SetVerCmdPackage.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
+      <Link>Resources\SetVerCmdPackage.ico</Link>
     </Content>
-    <Content Include="Resources\SetVerCmdPreview.png">
+    <Content Include="..\SharedFiles\SetVerCmdPreview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
+      <Link>Resources\SetVerCmdPreview.png</Link>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Include="..\SharedFiles\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <Link>Properties\Resources.resx</Link>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
