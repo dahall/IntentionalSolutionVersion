@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IntentionalSolutionVersion.Properties {
+namespace Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
