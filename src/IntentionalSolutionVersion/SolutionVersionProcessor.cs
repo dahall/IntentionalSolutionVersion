@@ -1,9 +1,7 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,8 +101,7 @@ namespace IntentionalSolutionVersion
 				return d.ToList();
 			});
 
-
-			IEnumerable<string> GetProjectFiles(IEnumerable<string> projectFiles, string name)
+			static IEnumerable<string> GetProjectFiles(IEnumerable<string> projectFiles, string name)
 			{
 				foreach (var i in projectFiles)
 				{
@@ -114,7 +111,7 @@ namespace IntentionalSolutionVersion
 				}
 			}
 
-			IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
+			static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
 			{
 				var xmlDoc = new XmlDocument();
 				xmlDoc.Load(fn);
@@ -136,7 +133,7 @@ namespace IntentionalSolutionVersion
 				}
 			}
 
-			void ProcessNuspecFile(string fn, Action<VerData> addVer)
+			static void ProcessNuspecFile(string fn, Action<VerData> addVer)
 			{
 				foreach (var ver in GetXmlTagVersions(fn, "/x:package/x:metadata/x:version", nuspecold, null))
 					addVer(ver);
@@ -146,7 +143,7 @@ namespace IntentionalSolutionVersion
 					addVer(ver);
 			}
 
-			void ProcessProjFile(string projFile, Action<VerData> addVer)
+			static void ProcessProjFile(string projFile, Action<VerData> addVer)
 			{
 				foreach (var ver in GetXmlTagVersions(projFile, "/x:Project/x:PropertyGroup/x:Version", msbld, null))
 					addVer(ver);
@@ -160,7 +157,7 @@ namespace IntentionalSolutionVersion
 					addVer(ver);
 			}
 
-			bool TryGetAttrVersion(string fn, string attr, out VerData ver)
+			static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 			{
 				var expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
 				var n = 0;
@@ -195,29 +192,25 @@ namespace IntentionalSolutionVersion
 					System.Diagnostics.Debug.WriteLine($"Processing {pver.FileName}...");
 					if (int.TryParse(pver.Locator, out _))
 					{
-						using (var ms = new MemoryStream())
+						using var ms = new MemoryStream();
+						using (var rdr = new StreamReader(pver.FileName, System.Text.Encoding.UTF8, true))
 						{
-							using (var rdr = new StreamReader(pver.FileName, System.Text.Encoding.UTF8, true))
+							rdr.Peek();
+							var wr = new StreamWriter(ms, rdr.CurrentEncoding);
+							var lineLookup = grp.ToDictionary(v => int.Parse(v.Locator));
+							for (var i = 0; !rdr.EndOfStream; i++)
 							{
-								rdr.Peek();
-								var wr = new StreamWriter(ms, rdr.CurrentEncoding);
-								var lineLookup = grp.ToDictionary(v => int.Parse(v.Locator));
-								for (var i = 0; !rdr.EndOfStream; i++)
-								{
-									var l = rdr.ReadLine();
-									wr.WriteLine(lineLookup.TryGetValue(i + 1, out var ver)
-										? ReplaceGroup(l, ver.RegEx, newVer.ToString())
-										: l);
-								}
-								wr.Flush();
+								var l = rdr.ReadLine();
+								wr.WriteLine(lineLookup.TryGetValue(i + 1, out var ver)
+									? ReplaceGroup(l, ver.RegEx, newVer.ToString())
+									: l);
 							}
-							ms.Seek(0, SeekOrigin.Begin);
-							using (var fs = new FileStream(saveFn, FileMode.Truncate, FileAccess.Write))
-							{
-								ms.CopyTo(fs);
-								fs.Flush();
-							}
+							wr.Flush();
 						}
+						ms.Seek(0, SeekOrigin.Begin);
+						using var fs = new FileStream(saveFn, FileMode.Truncate, FileAccess.Write);
+						ms.CopyTo(fs);
+						fs.Flush();
 					}
 					else
 					{
