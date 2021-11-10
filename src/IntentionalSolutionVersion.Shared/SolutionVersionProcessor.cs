@@ -162,7 +162,7 @@ namespace IntentionalSolutionVersion
 				}
 				for (int i = 0; !(nodes is null) && i < nodes.Count; i++)
 				{
-					if (regEx == null)
+					if (string.IsNullOrEmpty(regEx))
 					{
 						regEx = defRegex;
 					}
@@ -292,25 +292,14 @@ namespace IntentionalSolutionVersion
 						nsp.AddNamespace("x", pver.Namespace ?? string.Empty);
 						foreach (VerData ver in grp)
 						{
-							if (ver.Locator == null)
+							if (ver.Locator is null)
 							{
-								foreach (XmlNode node in xmlDoc.SelectNodes("/x:Project/x:PropertyGroup", nsp))
+								var node = xmlDoc.SelectSingleNode("/x:Project/x:PropertyGroup[x:OutputType|x:TargetFrameworkVersion|x:TargetFramework|x:TargetFrameworks]", nsp);
+								if (node is not null)
 								{
-									bool validForVersion = false;
-									foreach (XmlNode child in node.ChildNodes)
-									{
-										if (child.Name.Equals("RootNamespace", StringComparison.OrdinalIgnoreCase))
-										{
-											validForVersion = true;
-										}
-									}
-
-									if (validForVersion)
-									{
-										XmlNode nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
-										nodeVer.InnerText = newVer.ToString();
-										node.AppendChild(nodeVer);
-									}
+									XmlNode nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
+									nodeVer.InnerText = newVer.ToString();
+									node.AppendChild(nodeVer);
 								}
 							}
 							else
@@ -332,10 +321,10 @@ namespace IntentionalSolutionVersion
 			});
 
 			string ReplaceGroup(string input, string pattern, string replacement) => Regex.Replace(input, pattern, m =>
-																								   {
-																									   Group grp = m.Groups[1];
-																									   return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
-																								   });
+				{
+					Group grp = m.Groups[1];
+					return string.Concat(m.Value.Substring(0, grp.Index - m.Index), replacement, m.Value.Substring(grp.Index - m.Index + grp.Length));
+				});
 		}
 	}
 }
