@@ -119,6 +119,7 @@
   </resheader>
   <data name="110" xml:space="preserve">
     <value>Intentional Solution Version Extension</value>
+    <comment>Title</comment>
   </data>
   <data name="112" xml:space="preserve">
     <value>Provides a means to update all version information in a solution at once including project files, assembly info, NuGet files, and extension files.</value>
