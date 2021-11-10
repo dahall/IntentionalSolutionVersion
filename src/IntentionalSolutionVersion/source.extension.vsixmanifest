@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="IntentionalSolutionVersion.a5f29c7f-d53d-472f-ad50-58627e6c71af" Version="1.0.8" Language="en-US" Publisher="David Hall" />
+    <Identity Id="IntentionalSolutionVersion.a5f29c7f-d53d-472f-ad50-58627e6c71af" Version="1.0.9" Language="en-US" Publisher="David Hall" />
     <DisplayName>Intentional Solution Version Editor</DisplayName>
     <Description xml:space="preserve">Provides a means to update all version information in a solution at once including project files, assembly info, NuGet files, and extension files.</Description>
     <License>license.txt</License>
