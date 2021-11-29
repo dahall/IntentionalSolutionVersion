@@ -139,7 +139,7 @@ namespace IntentionalSolutionVersion
 			{
 				foreach (string i in projectFiles)
 				{
-					if (i != null && (name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) ||
+					if (i != null && name[0] == '.' && Path.GetExtension(i).Equals(name, StringComparison.InvariantCultureIgnoreCase) ||
 						(name[0] != '.' && Path.GetFileName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)))
 					{
 						yield return i;

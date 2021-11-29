@@ -43,10 +43,10 @@ namespace IntentionalSolutionVersion
 		protected void RefreshProjectsVer()
 		{
 			data = ThreadHelper.JoinableTaskFactory.Run(() => SolutionVersionProcessor.GetProjectVersionsAsync(
-																	slnFileName, sln,
-																	Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
-																	includeWithoutVer: includeWithoutVer.Checked)
-														);
+				slnFileName, sln,
+				Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
+				includeWithoutVer: includeWithoutVer.Checked)
+			);
 			Version cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
@@ -136,7 +136,7 @@ namespace IntentionalSolutionVersion
 		private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			string fn = ((VerData)list.FocusedItem?.Tag)?.FileName;
-			if (fn == null)
+			if (fn is null)
 			{
 				return;
 			}
@@ -149,7 +149,7 @@ namespace IntentionalSolutionVersion
 		private void selectAllWithThisVersionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Version v = ((VerData)list.FocusedItem?.Tag)?.Version;
-			if (v == null)
+			if (v is null)
 			{
 				return;
 			}
@@ -170,7 +170,10 @@ namespace IntentionalSolutionVersion
 			public ListViewItemComparer(int column = 0) => col = column;
 
 			public int Column
-			{ get => col; set { asc = value != col || !asc; col = value; } }
+			{
+				get => col;
+				set { asc = value != col || !asc; col = value; }
+			}
 
 			public int Compare(object x, object y)
 			{
