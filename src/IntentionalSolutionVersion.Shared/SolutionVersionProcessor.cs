@@ -118,7 +118,7 @@ namespace IntentionalSolutionVersion
 								ProcessNuspecFile(fn, AddVer);
 							}
 
-							if (!foundVer && includeWithoutVer)
+							if (!foundVer && includeWithoutVer && File.Exists(proj))
 							{
 								// Set invalid version, permit the initialization of all project without any version
 								AddVer(new VerData(proj, new Version(0, 0, 0), "<Version>0.0.0</Version>", null, null));

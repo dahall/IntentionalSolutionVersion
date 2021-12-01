@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using Task = System.Threading.Tasks.Task;
 
@@ -24,24 +25,25 @@ namespace IntentionalSolutionVersion
 		/// </summary>
 		/// <param name="package">Owner package, not null.</param>
 		/// <param name="commandService">Command service to add command to, not null.</param>
-		private SetVerCmd(AsyncPackage package, DTE dte, OleMenuCommandService commandService)
+		private SetVerCmd(AsyncPackage package, EnvDTE80.DTE2 dte, OleMenuCommandService commandService)
 		{
 			this.package = package ?? throw new ArgumentNullException(nameof(package));
 			commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 			Dte = dte;
 
-			CommandID menuCommandID = new CommandID(CommandSet, CommandId);
-			MenuCommand menuItem = new MenuCommand(Execute, menuCommandID);
+			CommandID menuCommandID = new(CommandSet, CommandId);
+			MenuCommand menuItem = new(Execute, menuCommandID);
 			commandService.AddCommand(menuItem);
 		}
 
 		/// <summary>Gets the instance of the command.</summary>
 		public static SetVerCmd Instance { get; private set; }
 
-		public DTE Dte { get; }
+		/// <summary>Design-time Environment.</summary>
+		public EnvDTE80.DTE2 Dte { get; }
 
 		/// <summary>Gets the service provider from the owner package.</summary>
-		private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider => package;
+		public IAsyncServiceProvider ServiceProvider => package;
 
 		/// <summary>Initializes the singleton instance of the command.</summary>
 		/// <param name="package">Owner package, not null.</param>
@@ -51,7 +53,7 @@ namespace IntentionalSolutionVersion
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
 			OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-			DTE dte = await package.GetServiceAsync(typeof(DTE)) as DTE;
+			EnvDTE80.DTE2 dte = await package.GetServiceAsync(typeof(DTE)) as EnvDTE80.DTE2;
 			Instance = new SetVerCmd(package, dte, commandService);
 		}
 
@@ -64,7 +66,12 @@ namespace IntentionalSolutionVersion
 		private void Execute(object sender, EventArgs e)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-			new VersionDialog(Dte?.Solution?.FileName, Dte?.Solution?.GetFiles()).ShowDialog();
+
+			IDictionary<string, List<string>> files = null;
+			if (Dte?.Solution is not null && (files = Dte.Solution.GetFiles()) is not null || files.Count > 0)
+				new VersionDialog(Dte?.Solution?.FileName, files).ShowDialog();
+			else
+				EnvDTEExt.ShowMessageBox("Unable to identify any projects.");
 		}
 	}
 }
