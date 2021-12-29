@@ -170,9 +170,11 @@ namespace IntentionalSolutionVersion
 					Match m = Regex.Match(nodes[i].InnerText, regEx);
 					if (m.Success)
 					{
-						yield return new VerData(fn, new Version(m.Groups[1].Value), nodes[i].OuterXml, nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+						yield return new VerData(fn, new Version(m.Groups[1].Value), RemoveNS(nodes[i].OuterXml), nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
 					}
 				}
+
+				string RemoveNS(string value) => string.IsNullOrEmpty(ns) ? value : value.Replace($" xmlns=\"{ns}\"", string.Empty);
 			}
 
 			static void ProcessNuspecFile(string fn, Action<VerData> addVer)
@@ -223,7 +225,7 @@ namespace IntentionalSolutionVersion
 
 			static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 			{
-				string expr = $@"\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
+				string expr = $@"(?<!//)\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
 				int n = 0;
 				foreach (string l in File.ReadLines(fn))
 				{
