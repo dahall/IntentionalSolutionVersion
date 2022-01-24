@@ -42,8 +42,8 @@ namespace IntentionalSolutionVersion
 		/// <summary>Design-time Environment.</summary>
 		public EnvDTE80.DTE2 Dte { get; }
 
-		/// <summary>Gets the service provider from the owner package.</summary>
-		public IAsyncServiceProvider ServiceProvider => package;
+		/// <summary>Gets the owner package.</summary>
+		public AsyncPackage Package => package;
 
 		/// <summary>Initializes the singleton instance of the command.</summary>
 		/// <param name="package">Owner package, not null.</param>
@@ -68,10 +68,10 @@ namespace IntentionalSolutionVersion
 			ThreadHelper.ThrowIfNotOnUIThread();
 
 			IDictionary<string, List<string>> files = null;
-			if (Dte?.Solution is not null && (files = Dte.Solution.GetFiles()) is not null || files.Count > 0)
+			if (Dte?.Solution is not null && (files = Dte.Solution.GetFiles(package)) is not null || files.Count > 0)
 				new VersionDialog(Dte?.Solution?.FileName, files).ShowDialog();
 			else
-				EnvDTEExt.ShowMessageBox("Unable to identify any projects.");
+				package.ShowMessageBox("Unable to identify any projects.");
 		}
 	}
 }

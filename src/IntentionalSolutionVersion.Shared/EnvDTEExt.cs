@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace IntentionalSolutionVersion
 			catch { return item.FileNames[1]; }
 		}
 
-		public static IDictionary<string, List<string>> GetFiles(this Solution solution)
+		public static IDictionary<string, List<string>> GetFiles(this Solution solution, AsyncPackage package)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
 			Dictionary<string, List<string>> d = new();
@@ -89,11 +90,13 @@ namespace IntentionalSolutionVersion
 			}
 			if (bad.Count > 0)
 			{
-				ShowMessageBox("Duplicate projects. Please report as issue and include this text. (Press Ctrl-C to capture)\n\r" + string.Join("\n\r", bad) + "\n\r\n\rFound projects:" + string.Join("\n\r", d.Keys));
+				ShowMessageBox(package, "Duplicate projects. Please report as issue and include this text. (Press Ctrl-C to capture)\n\r" + string.Join("\n\r", bad) + "\n\r\n\rFound projects:" + string.Join("\n\r", d.Keys));
 			}
 
 			return d;
 		}
+
+		public static void ShowMessageBox(this AsyncPackage package, string text) => VsShellUtilities.ShowMessageBox(package, text, null, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 
 		private static IEnumerable<ProjectItem> EnumProjectItem(Project pr) => pr?.ProjectItems?.Cast<ProjectItem>() ?? Enumerable.Empty<ProjectItem>();
 
@@ -121,7 +124,5 @@ namespace IntentionalSolutionVersion
 				}
 			}
 		}
-
-		public static void ShowMessageBox(string text) => VsShellUtilities.ShowMessageBox((IServiceProvider)SetVerCmd.Instance.ServiceProvider.GetServiceAsync(typeof(IServiceProvider)), text, null, OLEMSGICON.OLEMSGICON_INFO, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 	}
 }
