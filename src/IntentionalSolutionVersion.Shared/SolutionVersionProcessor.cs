@@ -225,7 +225,7 @@ namespace IntentionalSolutionVersion
 
 			static bool TryGetAttrVersion(string fn, string attr, out VerData ver)
 			{
-				string expr = $@"(?<!//)\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
+				string expr = $@"(?<!//.*)\[assembly:.*{attr}(?:Attribute)?\s*\(\s*\""(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\""\s*\)\s*\]";
 				int n = 0;
 				foreach (string l in File.ReadLines(fn))
 				{
