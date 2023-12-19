@@ -81,11 +81,11 @@ namespace IntentionalSolutionVersion
 					string fn = null;
 					try { fn = p.FileName.Contains('\\') ? p.FileName : p.FullName; } catch { }
 					if (string.IsNullOrEmpty(fn))
-					{
 						fn = p.Name;
-					}
-
-					try { d.Add(fn, l); } catch { bad.Add(fn); }
+					if (d.ContainsKey(fn))
+						fn = p.UniqueName;
+					try { d.Add(fn, l); }
+					catch { bad.Add(fn); }
 				}
 			}
 			if (bad.Count > 0)

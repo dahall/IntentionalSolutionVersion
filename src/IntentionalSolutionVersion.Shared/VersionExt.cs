@@ -42,7 +42,7 @@ namespace IntentionalSolutionVersion
 		/// </returns>
 		public static int CompareTo(this Version version, Version value, VersionComparison comparisonType)
 		{
-			if (value == null)
+			if (value is null)
 			{
 				return 1;
 			}
@@ -79,7 +79,7 @@ namespace IntentionalSolutionVersion
 		/// <returns><see langword="true"/> if the values are equal; <see langword="false"/> otherwise.</returns>
 		public static bool Equals(this Version version, Version value, VersionComparison comparisonType)
 		{
-			if (value == null)
+			if (value is null)
 			{
 				return false;
 			}
@@ -98,7 +98,7 @@ namespace IntentionalSolutionVersion
 		/// <returns>New new, incremented <see cref="Version"/> value.</returns>
 		public static Version Increment(this Version value)
 		{
-			if (value == null)
+			if (value is null)
 			{
 				return null;
 			}

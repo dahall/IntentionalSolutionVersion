@@ -296,7 +296,7 @@ namespace IntentionalSolutionVersion
 						{
 							if (ver.Locator is null)
 							{
-								var node = xmlDoc.SelectSingleNode("/x:Project/x:PropertyGroup[x:OutputType|x:TargetFrameworkVersion|x:TargetFramework|x:TargetFrameworks]", nsp);
+								XmlNode node = xmlDoc.SelectSingleNode("/x:Project/x:PropertyGroup[x:OutputType|x:TargetFrameworkVersion|x:TargetFramework|x:TargetFrameworks]", nsp);
 								if (node is not null)
 								{
 									XmlNode nodeVer = xmlDoc.CreateNode(XmlNodeType.Element, "Version", null);
