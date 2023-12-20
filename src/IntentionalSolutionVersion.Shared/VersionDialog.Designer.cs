@@ -147,7 +147,6 @@
             resources.ApplyResources(this.selVerEdit, "selVerEdit");
             this.selVerEdit.Name = "selVerEdit";
             this.selVerEdit.ShowRevision = false;
-            this.selVerEdit.Value = ((System.Version)(resources.GetObject("selVerEdit.Value")));
             // 
             // selVerBtn
             // 
@@ -173,7 +172,6 @@
             resources.ApplyResources(this.newVerEdit, "newVerEdit");
             this.newVerEdit.Name = "newVerEdit";
             this.newVerEdit.ShowRevision = false;
-            this.newVerEdit.Value = ((System.Version)(resources.GetObject("newVerEdit.Value")));
             // 
             // listCtxMenu
             // 

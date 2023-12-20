@@ -1,8 +1,9 @@
-﻿using System;
+﻿using NuGet.Versioning;
+using System;
 
 namespace IntentionalSolutionVersion
 {
-	/// <summary>Indicate how to compare <see cref="Version"/> values.</summary>
+	/*/// <summary>Indicate how to compare <see cref="Version"/> values.</summary>
 	public enum VersionComparison
 	{
 		/// <summary>Look at all values.</summary>
@@ -10,11 +11,12 @@ namespace IntentionalSolutionVersion
 
 		/// <summary>Ignore any unset values.</summary>
 		IgnoreUnset
-	}
+	}*/
 
 	/// <summary>Extensions for <see cref="Version"/>.</summary>
 	public static class VersionExt
 	{
+		/*
 		/// <summary>Compares a <see cref="Version"/> instance to another and returns an indication of their relative values.</summary>
 		/// <param name="version">The version to compare.</param>
 		/// <param name="value">The other version to compare.</param>
@@ -108,6 +110,27 @@ namespace IntentionalSolutionVersion
 			return bld == -1 ? new Version(value.Major, value.Minor + 1) :
 				rev == -1 ? new Version(value.Major, value.Minor, bld + 1) :
 				new Version(value.Major, value.Minor, bld, rev + 1);
+		}
+		*/
+
+
+		/// <summary>
+		/// Increments the specified <see cref="Version"/>. If a sub-value is undefined (-1), then the next most prominent value is incremented.
+		/// </summary>
+		/// <param name="value">The <see cref="Version"/> value.</param>
+		/// <returns>New new, incremented <see cref="Version"/> value.</returns>
+		public static NuGetVersion Increment(this NuGetVersion value)
+		{
+			if (value is null)
+			{
+				return null;
+			}
+
+			int bld = value.Patch;
+			int rev = value.Revision;
+			return bld == 0 ? new NuGetVersion(value.Major, value.Minor + 1, 0, value.Release) :
+				rev == -1 ? new NuGetVersion(value.Major, value.Minor, bld + 1, value.Release) :
+				new NuGetVersion(value.Major, value.Minor, bld, rev + 1, value.ReleaseLabels, value.Metadata);
 		}
 	}
 }

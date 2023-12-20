@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NuGet.Versioning;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace IntentionalSolutionVersion
 {
 	internal static class SolutionVersionProcessor
 	{
-		private const string defRegex = @"(\d+(?:\.\d+){1,2})";
+		// From https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+		//const string defRegex = @"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?";
 
 		public static async Task<IList<VerData>> GetProjectVersionsAsync(string slnPath,
 						IDictionary<string, List<string>> slnFiles,
@@ -25,7 +27,7 @@ namespace IntentionalSolutionVersion
 			const string nuspecold = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd";
 			const string vsix = "http://schemas.microsoft.com/developer/vsx-schema/2011";
 			const string vst = "http://schemas.microsoft.com/developer/vstemplate/2005";
-			const string nupkgRegex = @".*\.(\d+\.\d+\.\d+)(?:\.[^\s\.]+)?\.nupkg";
+			const string nupkgRegex = "!!";
 
 			return await Task.Run(() =>
 			{
@@ -87,6 +89,10 @@ namespace IntentionalSolutionVersion
 
 							break;
 
+						case ".vcxproj":
+							// TODO: Add support for packages.config
+							break;
+
 						case "":
 							foreach (string aifn in asmInfoFiles)
 							{
@@ -121,7 +127,7 @@ namespace IntentionalSolutionVersion
 							if (!foundVer && includeWithoutVer && File.Exists(proj))
 							{
 								// Set invalid version, permit the initialization of all project without any version
-								AddVer(new VerData(proj, new Version(0, 0, 0), "<Version>0.0.0</Version>", null, null));
+								AddVer(new VerData(proj, new(0, 0, 0), "<Version>0.0.0</Version>", null, null));
 							}
 							break;
 
@@ -160,17 +166,22 @@ namespace IntentionalSolutionVersion
 					nsp.AddNamespace("x", ns);
 					nodes = xmlDoc.SelectNodes(xmlPath, nsp);
 				}
-				for (int i = 0; !(nodes is null) && i < nodes.Count; i++)
+				for (int i = 0; nodes is not null && i < nodes.Count; i++)
 				{
-					if (string.IsNullOrEmpty(regEx))
+					if (regEx is null or nupkgRegex)
 					{
-						regEx = defRegex;
+						if (NuGetVersion.TryParse(nodes[i].InnerText, out var ver))
+						{
+							yield return new VerData(fn, ver, RemoveNS(nodes[i].OuterXml), nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+						}
 					}
-
-					Match m = Regex.Match(nodes[i].InnerText, regEx);
-					if (m.Success)
+					else
 					{
-						yield return new VerData(fn, new Version(m.Groups[1].Value), RemoveNS(nodes[i].OuterXml), nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+						Match m = Regex.Match(nodes[i].InnerText, regEx);
+						if (m.Success)
+						{
+							yield return new VerData(fn, new(m.Groups[1].Value), RemoveNS(nodes[i].OuterXml), nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
+						}
 					}
 				}
 
@@ -236,7 +247,7 @@ namespace IntentionalSolutionVersion
 						continue;
 					}
 
-					ver = new VerData(fn, new Version(m.Groups[1].Value), l, n.ToString(), expr);
+					ver = new VerData(fn, new (m.Groups[1].Value), l, n.ToString(), expr);
 					return true;
 				}
 				ver = null;
@@ -244,7 +255,7 @@ namespace IntentionalSolutionVersion
 			}
 		}
 
-		public static async Task UpdateAsync(IEnumerable<VerData> vers, Version newVer, CancellationToken cancellationToken = default, IProgress<(int, string)> progress = null)
+		public static async Task UpdateAsync(IEnumerable<VerData> vers, NuGetVersion newVer, CancellationToken cancellationToken = default, IProgress<(int, string)> progress = null)
 		{
 			await Task.Run(() =>
 			{

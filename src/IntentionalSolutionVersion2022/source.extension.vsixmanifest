@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="IntentionalSolutionVersion2022.6adf2278-de36-4726-8cea-0e1823a27cd3" Version="1.1.4" Language="en-US" Publisher="dahall" />
+    <Identity Id="IntentionalSolutionVersion2022.6adf2278-de36-4726-8cea-0e1823a27cd3" Version="1.2.0" Language="en-US" Publisher="dahall" />
     <DisplayName>Intentional Solution Version Editor VS2022</DisplayName>
     <Description xml:space="preserve">Provides a means to update all version information in a solution at once including project files, assembly info, NuGet files, and extension files.</Description>
     <License>license.txt</License>

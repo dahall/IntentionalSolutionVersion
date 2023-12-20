@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Shell;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,13 +23,13 @@ namespace IntentionalSolutionVersion
 			list.ListViewItemSorter = new ListViewItemComparer();
 		}
 
-		public Version NewVersion
+		public NuGetVersion NewVersion
 		{
 			get => newVerEdit.Value;
 			private set => newVerEdit.Value = value;
 		}
 
-		public Version SelVersion
+		public NuGetVersion SelVersion
 		{
 			get => selVerEdit.Value;
 			private set => selVerEdit.Value = value;
@@ -47,7 +48,7 @@ namespace IntentionalSolutionVersion
 				Properties.Settings.Default.AssemblyInfoFileNames.Split(';'),
 				includeWithoutVer: includeWithoutVer.Checked)
 			);
-			Version cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
+			NuGetVersion cmVer = data.GroupBy(v => v.Version).OrderByDescending(gp => gp.Count()).Take(1).Select(g => g.Key).FirstOrDefault();
 			SelVersion = cmVer;
 			NewVersion = cmVer.Increment();
 			groupByFileNameToolStripMenuItem_Click(this, EventArgs.Empty);
@@ -66,12 +67,12 @@ namespace IntentionalSolutionVersion
 			list.EndUpdate();
 		}
 
-		private void CheckAllMatchingItems(Version ver)
+		private void CheckAllMatchingItems(NuGetVersion ver)
 		{
 			list.BeginUpdate();
 			foreach (ListViewItem i in list.Items)
 			{
-				i.Checked = ((VerData)i.Tag).Version.CompareTo(ver, VersionComparison.IgnoreUnset) == 0;
+				i.Checked = ((VerData)i.Tag).Version.CompareTo(ver, VersionComparison.Version) == 0;
 			}
 
 			list.EndUpdate();
@@ -148,7 +149,7 @@ namespace IntentionalSolutionVersion
 
 		private void selectAllWithThisVersionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Version v = ((VerData)list.FocusedItem?.Tag)?.Version;
+			NuGetVersion v = ((VerData)list.FocusedItem?.Tag)?.Version;
 			if (v is null)
 			{
 				return;
