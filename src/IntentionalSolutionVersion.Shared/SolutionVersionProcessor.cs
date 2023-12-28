@@ -30,9 +30,10 @@ namespace IntentionalSolutionVersion
 			{
 				// Setup the instructions for the version retrieval
 				JsonNode changeGuide = JsonNode.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ChangeGuide.json")));
-				Dictionary<string, string> lookupTypes = [];
+				Dictionary<string, string> lookupTemp = [];
 				foreach (var kv in changeGuide["lookupTypes"]!.AsObject())
-					lookupTypes.Add(kv.Key, Regex.Replace((string)kv.Value, @"%(\w+)%", match => lookupTypes[match.Groups[1].Value]));
+					lookupTemp.Add(kv.Key, Regex.Replace((string)kv.Value, @"%(\w+)%", match => lookupTemp[match.Groups[1].Value]));
+				Dictionary<string, Regex> lookupTypes = lookupTemp.ToDictionary(kv => kv.Key, kv => new Regex(kv.Value, RegexOptions.Compiled | RegexOptions.CultureInvariant));
 				Dictionary<string, string> ns = changeGuide["namespaces"]!.AsObject().ToDictionary(kv => kv.Key, kv => (string)kv.Value!);
 				Dictionary<string, JsonArray> projFiles = changeGuide["projects"]!.AsArray().
 					SelectMany(n => n["projExtensions"]!.AsArray().Select(ex => ((string)ex, n["fileTypes"]!.AsArray()))).
@@ -104,7 +105,7 @@ namespace IntentionalSolutionVersion
 							foreach (string l in File.ReadLines(fn))
 							{
 								n++;
-								Match m = Regex.Match(l, pattern);
+								Match m = pattern.Match(l);
 								if (!m.Success)
 									continue;
 
@@ -128,7 +129,7 @@ namespace IntentionalSolutionVersion
 				}
 			}
 
-			static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, string regEx = null)
+			static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, Regex regEx = null)
 			{
 				XmlDocument xmlDoc = new();
 				xmlDoc.Load(fn);
@@ -148,7 +149,7 @@ namespace IntentionalSolutionVersion
 				}
 				for (int i = 0; nodes is not null && i < nodes.Count; i++)
 				{
-					Match m = Regex.Match(nodes[i].InnerText, regEx);
+					Match m = regEx.Match(nodes[i].InnerText);
 					if (m.Success)
 					{
 						yield return new VerData(fn, MakeVer(m), RemoveNS(nodes[i].OuterXml), nodes.Count == 1 ? xmlPath : $"({xmlPath})[{i + 1}]", regEx, ns);
@@ -267,7 +268,7 @@ namespace IntentionalSolutionVersion
 				}
 			});
 
-			string ReplaceGroup(string input, in VerData ver, NuGetVersion newVer) => Regex.Replace(input, ver.RegEx, m =>
+			string ReplaceGroup(string input, in VerData ver, NuGetVersion newVer) => ver.RegEx.Replace(input, m =>
 			{
 				Group grp = m.Groups[1];
 				string replacement = grp.Name switch
