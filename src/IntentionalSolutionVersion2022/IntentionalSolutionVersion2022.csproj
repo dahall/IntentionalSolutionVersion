@@ -70,6 +70,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\SharedFiles\ChangeGuide.json">
+      <Link>ChangeGuide.json</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="..\SharedFiles\Key.snk">
       <Link>Key.snk</Link>
     </None>
@@ -79,6 +83,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       <CustomToolNamespace>IntentionalSolutionVersion.Properties</CustomToolNamespace>
     </None>
+    <None Include="app.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

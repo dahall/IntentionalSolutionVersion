@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.156
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntentionalSolutionVersion", "IntentionalSolutionVersion\IntentionalSolutionVersion.csproj", "{644E90A0-10A1-4976-B870-2979E645C72E}"
 EndProject
@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedFiles", "SharedFiles", "{79E88683-B380-4816-89A3-7320384549E0}"
 	ProjectSection(SolutionItems) = preProject
 		SharedFiles\AssemblyInfo.cs = SharedFiles\AssemblyInfo.cs
+		SharedFiles\ChangeGuide.json = SharedFiles\ChangeGuide.json
 		SharedFiles\Key.snk = SharedFiles\Key.snk
 		SharedFiles\license.txt = SharedFiles\license.txt
 		SharedFiles\Resources.resx = SharedFiles\Resources.resx
@@ -22,12 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedFiles", "SharedFiles"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntentionalSolutionVersion2022", "IntentionalSolutionVersion2022\IntentionalSolutionVersion2022.csproj", "{8A5C0998-AEE8-44C5-A668-68F4869E4C3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{E740AAA8-1A02-4E10-981E-BFD48AFA4030}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{0a017eef-5861-44ab-88a3-ca2b7a01997c}*SharedItemsImports = 13
-		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{644e90a0-10a1-4976-b870-2979e645c72e}*SharedItemsImports = 4
-		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{8a5c0998-aee8-44c5-a668-68f4869e4c3c}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -41,11 +39,21 @@ Global
 		{8A5C0998-AEE8-44C5-A668-68F4869E4C3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A5C0998-AEE8-44C5-A668-68F4869E4C3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A5C0998-AEE8-44C5-A668-68F4869E4C3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E740AAA8-1A02-4E10-981E-BFD48AFA4030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E740AAA8-1A02-4E10-981E-BFD48AFA4030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E740AAA8-1A02-4E10-981E-BFD48AFA4030}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E740AAA8-1A02-4E10-981E-BFD48AFA4030}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C7F11ACC-7B2D-4C54-95E9-6EE04A674D89}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{0a017eef-5861-44ab-88a3-ca2b7a01997c}*SharedItemsImports = 13
+		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{644e90a0-10a1-4976-b870-2979e645c72e}*SharedItemsImports = 4
+		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{8a5c0998-aee8-44c5-a668-68f4869e4c3c}*SharedItemsImports = 4
+		IntentionalSolutionVersion.Shared\IntentionalSolutionVersion.Shared.projitems*{e740aaa8-1a02-4e10-981e-bfd48afa4030}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

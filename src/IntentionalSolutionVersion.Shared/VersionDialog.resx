@@ -160,7 +160,7 @@
     <value>14, 14</value>
   </data>
   <data name="list.Size" type="System.Drawing.Size, System.Drawing">
-    <value>439, 258</value>
+    <value>468, 318</value>
   </data>
   <data name="list.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -289,22 +289,16 @@
     <value>0, 0, 0, 0</value>
   </data>
   <data name="selVerEdit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>125, 23</value>
+    <value>160, 23</value>
   </data>
   <data name="selVerEdit.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
-  </data>
-  <data name="selVerEdit.Value" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAEAQAAAA5TeXN0ZW0uVmVyc2lvbgQAAAAGX01ham9yBl9NaW5vcgZfQnVp
-        bGQJX1JldmlzaW9uAAAAAAgICAgAAAAAAAAAAP//////////Cw==
-</value>
   </data>
   <data name="&gt;&gt;selVerEdit.Name" xml:space="preserve">
     <value>selVerEdit</value>
   </data>
   <data name="&gt;&gt;selVerEdit.Type" xml:space="preserve">
-    <value>IntentionalSolutionVersion.VersionEdit, IntentionalSolutionVersion, Version=1.0.6.0, Culture=neutral, PublicKeyToken=7b613b1275d67ac3</value>
+    <value>IntentionalSolutionVersion.VersionEdit, IntentionalSolutionVersion2022, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7b613b1275d67ac3</value>
   </data>
   <data name="&gt;&gt;selVerEdit.Parent" xml:space="preserve">
     <value>tableLayoutPanel2</value>
@@ -316,7 +310,7 @@
     <value>NoControl</value>
   </data>
   <data name="selVerBtn.Location" type="System.Drawing.Point, System.Drawing">
-    <value>186, 0</value>
+    <value>221, 0</value>
   </data>
   <data name="selVerBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>7, 0, 0, 0</value>
@@ -352,7 +346,7 @@
     <value>1</value>
   </data>
   <data name="tableLayoutPanel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>233, 23</value>
+    <value>268, 23</value>
   </data>
   <data name="tableLayoutPanel2.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -376,10 +370,10 @@
     <value>Top</value>
   </data>
   <data name="flowLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>14, 278</value>
+    <value>14, 338</value>
   </data>
   <data name="flowLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>439, 23</value>
+    <value>468, 23</value>
   </data>
   <data name="flowLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -396,13 +390,13 @@
   <data name="&gt;&gt;flowLayoutPanel1.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="tableLayoutPanel1.AutoSize" type="System.Boolean, mscorlib">
+  <data name="newVerPanel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="tableLayoutPanel1.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+  <data name="newVerPanel.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
     <value>GrowAndShrink</value>
   </data>
-  <data name="tableLayoutPanel1.ColumnCount" type="System.Int32, mscorlib">
+  <data name="newVerPanel.ColumnCount" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
   <data name="label1.AutoSize" type="System.Boolean, mscorlib">
@@ -430,67 +424,118 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;label1.Parent" xml:space="preserve">
-    <value>tableLayoutPanel1</value>
+    <value>newVerPanel</value>
   </data>
   <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <data name="newVerEdit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 18</value>
+    <value>6, 21</value>
+  </data>
+  <data name="newVerEdit.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>6, 6, 6, 6</value>
   </data>
   <data name="newVerEdit.Size" type="System.Drawing.Size, System.Drawing">
-    <value>148, 23</value>
+    <value>167, 23</value>
   </data>
   <data name="newVerEdit.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
-  </data>
-  <data name="newVerEdit.Value" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAEAQAAAA5TeXN0ZW0uVmVyc2lvbgQAAAAGX01ham9yBl9NaW5vcgZfQnVp
-        bGQJX1JldmlzaW9uAAAAAAgICAgAAAAAAAAAAP//////////Cw==
-</value>
   </data>
   <data name="&gt;&gt;newVerEdit.Name" xml:space="preserve">
     <value>newVerEdit</value>
   </data>
   <data name="&gt;&gt;newVerEdit.Type" xml:space="preserve">
-    <value>IntentionalSolutionVersion.VersionEdit, IntentionalSolutionVersion, Version=1.0.6.0, Culture=neutral, PublicKeyToken=7b613b1275d67ac3</value>
+    <value>IntentionalSolutionVersion.VersionEdit, IntentionalSolutionVersion2022, Version=1.2.0.0, Culture=neutral, PublicKeyToken=7b613b1275d67ac3</value>
   </data>
   <data name="&gt;&gt;newVerEdit.Parent" xml:space="preserve">
-    <value>tableLayoutPanel1</value>
+    <value>newVerPanel</value>
   </data>
   <data name="&gt;&gt;newVerEdit.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="tableLayoutPanel1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Top</value>
+  <data name="showRevCheckBox.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
-  <data name="tableLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>459, 14</value>
+  <data name="showRevCheckBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 53</value>
   </data>
-  <data name="tableLayoutPanel1.RowCount" type="System.Int32, mscorlib">
-    <value>2</value>
+  <data name="showRevCheckBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>155, 19</value>
   </data>
-  <data name="tableLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>154, 44</value>
-  </data>
-  <data name="tableLayoutPanel1.TabIndex" type="System.Int32, mscorlib">
+  <data name="showRevCheckBox.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
-  <data name="&gt;&gt;tableLayoutPanel1.Name" xml:space="preserve">
-    <value>tableLayoutPanel1</value>
+  <data name="showRevCheckBox.Text" xml:space="preserve">
+    <value>Use 4th version segment</value>
   </data>
-  <data name="&gt;&gt;tableLayoutPanel1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TableLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;showRevCheckBox.Name" xml:space="preserve">
+    <value>showRevCheckBox</value>
   </data>
-  <data name="&gt;&gt;tableLayoutPanel1.Parent" xml:space="preserve">
-    <value>bodyPanel</value>
+  <data name="&gt;&gt;showRevCheckBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;tableLayoutPanel1.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;showRevCheckBox.Parent" xml:space="preserve">
+    <value>newVerPanel</value>
+  </data>
+  <data name="&gt;&gt;showRevCheckBox.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="tableLayoutPanel1.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="label1" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="newVerEdit" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="AutoSize,0,AutoSize,0,AutoSize,0" /&gt;&lt;Rows Styles="AutoSize,0,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
+  <data name="showSufCheckBox.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="showSufCheckBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 78</value>
+  </data>
+  <data name="showSufCheckBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>128, 19</value>
+  </data>
+  <data name="showSufCheckBox.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="showSufCheckBox.Text" xml:space="preserve">
+    <value>Show version suffix</value>
+  </data>
+  <data name="&gt;&gt;showSufCheckBox.Name" xml:space="preserve">
+    <value>showSufCheckBox</value>
+  </data>
+  <data name="&gt;&gt;showSufCheckBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;showSufCheckBox.Parent" xml:space="preserve">
+    <value>newVerPanel</value>
+  </data>
+  <data name="&gt;&gt;showSufCheckBox.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="newVerPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="newVerPanel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>488, 14</value>
+  </data>
+  <data name="newVerPanel.RowCount" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="newVerPanel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>179, 100</value>
+  </data>
+  <data name="newVerPanel.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;newVerPanel.Name" xml:space="preserve">
+    <value>newVerPanel</value>
+  </data>
+  <data name="&gt;&gt;newVerPanel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TableLayoutPanel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;newVerPanel.Parent" xml:space="preserve">
+    <value>bodyPanel</value>
+  </data>
+  <data name="&gt;&gt;newVerPanel.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="newVerPanel.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="label1" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="newVerEdit" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="showRevCheckBox" Row="2" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="showSufCheckBox" Row="3" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="AutoSize,0,AutoSize,0,AutoSize,0" /&gt;&lt;Rows Styles="AutoSize,0,AutoSize,0,AutoSize,0,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <data name="bodyPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
@@ -505,7 +550,7 @@
     <value>2</value>
   </data>
   <data name="bodyPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>627, 315</value>
+    <value>681, 375</value>
   </data>
   <data name="bodyPanel.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -523,7 +568,7 @@
     <value>1</value>
   </data>
   <data name="bodyPanel.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
-    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="list" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="flowLayoutPanel1" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="tableLayoutPanel1" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,100,AutoSize,0" /&gt;&lt;Rows Styles="Percent,100,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
+    <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="list" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="flowLayoutPanel1" Row="1" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;Control Name="newVerPanel" Row="0" RowSpan="1" Column="1" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,100,AutoSize,0" /&gt;&lt;Rows Styles="Percent,100,AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
   <metadata name="listCtxMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
@@ -574,7 +619,7 @@
     <value>NoControl</value>
   </data>
   <data name="cancelBtn.Location" type="System.Drawing.Point, System.Drawing">
-    <value>541, 12</value>
+    <value>595, 12</value>
   </data>
   <data name="cancelBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 11, 11, 11</value>
@@ -610,7 +655,7 @@
     <value>NoControl</value>
   </data>
   <data name="okBtn.Location" type="System.Drawing.Point, System.Drawing">
-    <value>459, 12</value>
+    <value>513, 12</value>
   </data>
   <data name="okBtn.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>11, 11, 7, 11</value>
@@ -670,7 +715,7 @@
     <value>3, 4</value>
   </data>
   <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>442, 39</value>
+    <value>496, 39</value>
   </data>
   <data name="panel1.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -691,7 +736,7 @@
     <value>Bottom</value>
   </data>
   <data name="commandPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 315</value>
+    <value>0, 375</value>
   </data>
   <data name="commandPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
@@ -700,7 +745,7 @@
     <value>2</value>
   </data>
   <data name="commandPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>627, 46</value>
+    <value>681, 46</value>
   </data>
   <data name="commandPanel.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -730,7 +775,7 @@
     <value>0, 0, 0, 0</value>
   </data>
   <data name="borderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>627, 1</value>
+    <value>681, 1</value>
   </data>
   <data name="borderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
@@ -754,7 +799,7 @@
     <value>7, 15</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>627, 361</value>
+    <value>681, 421</value>
   </data>
   <data name="$this.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9pt</value>

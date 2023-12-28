@@ -1,0 +1,172 @@
+{
+  "namespaces": {
+    "msbld": "http://schemas.microsoft.com/developer/msbuild/2003",
+    "nuspec": "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
+    "nuspecold": "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
+    "vsix": "http://schemas.microsoft.com/developer/vsx-schema/2011",
+    "vst": "http://schemas.microsoft.com/developer/vstemplate/2005"
+  },
+  "lookupTypes": {
+    "ver2": "(?<v2>(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*)){1})",
+    "ver3": "(?<v3>(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*)){2})",
+    "ver4": "(?<v4>(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*)){2,3})",
+    "nugetVer": "(?<ng>(?:0|[1-9]\\d*)(?:\\.(?:0|[1-9]\\d*)){2,3}(?:-(?:(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?:[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?)",
+    "nupkgName": ".*?\\.%nugetVer%\\.nupkg",
+    "asmVer": "(?<!//.*)\\[\\s*assembly\\s*:\\s*Assembly(?:File|Informational)?Version(?:Attribute)?\\s*\\(\\s*L?\"\\s*%ver4%\"\\s*\\)\\s*\\]"
+  },
+  "projects": [
+    {
+      "projExtensions": [ ".csproj", ".vbproj", ".vcxproj", "" ],
+      "fileTypes": [
+        {
+          "fileFilters": [ "", ".props" ],
+          "lookups": [
+            {
+              "xpath": "/Project/PropertyGroup/ApplicationVersion",
+              "ns": "msbld",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/AssemblyVersion",
+              "ns": "msbld",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/AssemblyFileVersion",
+              "ns": "msbld",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/AssemblyInformationalVersion",
+              "ns": "msbld",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/PackageVersion",
+              "ns": "msbld",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/Version",
+              "ns": "msbld",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/Project/PropertyGroup/VersionPrefix",
+              "ns": "msbld",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/Project/ItemGroup/Content/@Include",
+              "ns": "msbld",
+              "type": "nupkgName"
+            },
+            {
+              "xpath": "/x:Project/x:ItemGroup/x:PackageReference/x:Version",
+              "ns": "msbld",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/Project/ItemDefinitionGroup/Link/Version",
+              "ns": "msbld",
+              "type": "ver2"
+            },
+            {
+              "xpath": "/x:Project/x:ItemDefinitionGroup/x:Link/x:Version",
+              "ns": "msbld",
+              "type": "ver2"
+            }
+          ]
+        },
+        {
+          "fileFilters": [ ".cs", ".vb", ".cpp" ],
+          "lookups": [
+            {
+              "type": "asmVer"
+            }
+          ]
+        },
+        {
+          "fileFilters": [ ".nuspec" ],
+          "lookups": [
+            {
+              "xpath": "/package/metadata/version",
+              "ns": "nuspecold",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/package/metadata/version",
+              "ns": "nuspec",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/package/metadata/dependencies/dependency/@version",
+              "ns": "nuspec",
+              "type": "nugetVer"
+            }
+          ]
+        },
+        {
+          "fileFilters": [ ".vsixmanifest" ],
+          "lookups": [
+            {
+              "xpath": "/x:PackageManifest/x:Metadata/x:Identity/@Version",
+              "ns": "vsix",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/x:PackageManifest/x:Dependencies/x:Dependency/@Version",
+              "ns": "vsix",
+              "type": "ver4"
+            },
+            {
+              "xpath": "/x:PackageManifest/x:Assets/x:Asset/@Type",
+              "ns": "vsix",
+              "type": "nupkgName"
+            },
+            {
+              "xpath": "/x:PackageManifest/x:Assets/x:Asset/@Path",
+              "ns": "vsix",
+              "type": "nupkgName"
+            }
+          ]
+        },
+        {
+          "fileFilters": [ ".config" ],
+          "lookups": [
+            {
+              "xpath": "/packages/package/@version",
+              "ns": "msbld",
+              "type": "nugetVer"
+            }
+          ]
+        },
+        {
+          "fileFilters": [ ".vstemplate" ],
+          "lookups": [
+            {
+              "xpath": "/x:VSTemplate/x:WizardData/x:packages/x:package/@version",
+              "ns": "vst",
+              "type": "ver4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "projExtensions": [ ".shfbproj" ],
+      "fileTypes": [
+        {
+          "fileFilters": [ "" ],
+          "lookups": [
+            {
+              "xpath": "/x:Project/x:PropertyGroup/x:HelpFileVersion",
+              "ns": "msbld",
+              "type": "ver4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

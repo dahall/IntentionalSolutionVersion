@@ -5,5 +5,14 @@
     <Setting Name="AssemblyInfoFileNames" Type="System.String" Scope="User">
       <Value Profile="(Default)">AssemblyInfo.cs;SharedAssemblyInfo.cs</Value>
     </Setting>
+    <Setting Name="InclPrjNoVer" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ShowRev" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ShowSuf" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

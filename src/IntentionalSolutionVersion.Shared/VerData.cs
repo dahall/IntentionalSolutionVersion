@@ -16,6 +16,6 @@ namespace IntentionalSolutionVersion
 		public NuGetVersion Version { get; set; } = ver;
 		public bool Equals(VerData other) => FileName == other.FileName && LineText == other.LineText && RegEx == other.RegEx;
 
-		public override string ToString() => $"{Path.GetFileName(FileName)}={Version}:{LineText}";
+		public override string ToString() => $"{Path.GetFileName(FileName)}={Version.ToNormalizedString()}:{LineText}";
 	}
 }

@@ -2,6 +2,7 @@
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -35,9 +36,30 @@ namespace IntentionalSolutionVersion
 			private set => selVerEdit.Value = value;
 		}
 
+		public bool ShowRevisionVersionSegment
+		{
+			get => showRevCheckBox.Checked;
+			set => showRevCheckBox.Checked = value;
+		}
+
+		public bool ShowSuffixVersionSegment
+		{
+			get => showSufCheckBox.Checked;
+			set => showSufCheckBox.Checked = value;
+		}
+
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			base.OnClosing(e);
+			Properties.Settings.Default.Save();
+		}
+
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
+			Text = $"{Text} (v{new NuGetVersion(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version)})";
+			showRevCheckBox_CheckedChanged(this, EventArgs.Empty);
+			showSufCheckBox_CheckedChanged(this, EventArgs.Empty);
 			RefreshProjectsVer();
 		}
 
@@ -163,12 +185,14 @@ namespace IntentionalSolutionVersion
 
 		private void selVerBtn_Click(object sender, EventArgs e) => CheckAllMatchingItems(SelVersion);
 
-		private class ListViewItemComparer : System.Collections.IComparer
+		private void showRevCheckBox_CheckedChanged(object sender, EventArgs e) => newVerEdit.ShowRevision = selVerEdit.ShowRevision = showRevCheckBox.Checked;
+
+		private void showSufCheckBox_CheckedChanged(object sender, EventArgs e) => newVerEdit.ShowSuffix = selVerEdit.ShowSuffix = showSufCheckBox.Checked;
+
+		private class ListViewItemComparer(int column = 0) : System.Collections.IComparer
 		{
 			private bool asc = true;
-			private int col;
-
-			public ListViewItemComparer(int column = 0) => col = column;
+			private int col = column;
 
 			public int Column
 			{

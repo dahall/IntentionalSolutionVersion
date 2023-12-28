@@ -15,15 +15,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)SetVerCmdPackage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SolutionVersionProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerData.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VersionDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionDialog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionDialog.Designer.cs">
       <DependentUpon>VersionDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)VersionEdit.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VersionEdit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionEdit.Designer.cs">
       <DependentUpon>VersionEdit.cs</DependentUpon>
     </Compile>
