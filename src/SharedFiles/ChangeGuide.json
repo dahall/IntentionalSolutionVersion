@@ -1,8 +1,8 @@
 {
   "namespaces": {
     "msbld": "http://schemas.microsoft.com/developer/msbuild/2003",
-    "nuspec": "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
-    "nuspecold": "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd",
+    "nuspec": "http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd",
+    "nuspecold": "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd",
     "vsix": "http://schemas.microsoft.com/developer/vsx-schema/2011",
     "vst": "http://schemas.microsoft.com/developer/vstemplate/2005"
   },
@@ -19,7 +19,7 @@
       "projExtensions": [ ".csproj", ".vbproj", ".vcxproj", "" ],
       "fileTypes": [
         {
-          "fileFilters": [ "", ".props" ],
+          "fileFilters": [ "", ".props", ".targets" ],
           "lookups": [
             {
               "xpath": "/Project/PropertyGroup/ApplicationVersion",
@@ -90,18 +90,23 @@
           "fileFilters": [ ".nuspec" ],
           "lookups": [
             {
-              "xpath": "/package/metadata/version",
+              "xpath": "/x:package/x:metadata/x:version",
+              "ns": "nuspec",
+              "type": "nugetVer"
+            },
+            {
+              "xpath": "/x:package/x:metadata/x:version",
               "ns": "nuspecold",
               "type": "nugetVer"
             },
             {
-              "xpath": "/package/metadata/version",
+              "xpath": "/x:package/x:metadata/x:dependencies/x:dependency/@version",
               "ns": "nuspec",
               "type": "nugetVer"
             },
             {
-              "xpath": "/package/metadata/dependencies/dependency/@version",
-              "ns": "nuspec",
+              "xpath": "/x:package/x:metadata/x:dependencies/x:dependency/@version",
+              "ns": "nuspecold",
               "type": "nugetVer"
             }
           ]
