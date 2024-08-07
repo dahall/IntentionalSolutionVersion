@@ -131,7 +131,7 @@ namespace IntentionalSolutionVersion
 
 			static IEnumerable<VerData> GetXmlTagVersions(string fn, string xmlPath, string ns, Regex regEx = null)
 			{
-				XmlDocument xmlDoc = new();
+				XmlDocument xmlDoc = new() { PreserveWhitespace = true };
 				xmlDoc.Load(fn);
 				XmlNamespaceManager nsp = new(xmlDoc.NameTable);
 				nsp.AddNamespace("x", ns);
@@ -233,7 +233,7 @@ namespace IntentionalSolutionVersion
 					}
 					else
 					{
-						XmlDocument xmlDoc = new();
+						XmlDocument xmlDoc = new() { PreserveWhitespace = true };
 						xmlDoc.Load(pver.FileName);
 						XmlNamespaceManager nsp = new(xmlDoc.NameTable);
 						nsp.AddNamespace("x", pver.Namespace ?? string.Empty);
@@ -271,7 +271,15 @@ namespace IntentionalSolutionVersion
 			string ReplaceGroup(string input, in VerData ver, NuGetVersion newVer) => ver.RegEx.Replace(input, m =>
 			{
 				Group grp = m.Groups[1];
-				string replacement = grp.Name switch
+				var gname = grp.Name;
+				switch (gname)
+				{
+					case "v4":
+						m.
+					default:
+						break;
+				}
+				string replacement = gname switch
 				{
 					"v2" => newVer.ToString("x.y", VersionFormatter.Instance),
 					"v3" => newVer.ToString("x.y.z", VersionFormatter.Instance),
