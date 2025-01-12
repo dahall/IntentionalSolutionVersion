@@ -34,15 +34,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.8.37222" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.8.2365">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.10.40171" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.11.414">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NuGet.Versioning" Version="6.8.0" />
-    <PackageReference Include="NUnit" Version="4.0.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NuGet.Versioning" Version="6.10.1" />
+    <PackageReference Include="NUnit" Version="4.1.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
   </ItemGroup>
 
   <ItemGroup>

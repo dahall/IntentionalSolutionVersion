@@ -46,7 +46,7 @@ namespace IntentionalSolutionVersion.TestProject
 			var data = await GetProjectVersionsAsync(sln, projFiles, Properties.Settings.Default.AssemblyInfoFileNames.Split(';'));
 
 			// Write data
-			await UpdateAsync(data, new(2,0,0,0, "beta", null), dontSave: true);
+			await UpdateAsync(data, new(2,0,2,0, "beta", null), dontSave: true);
 		}
 	}
 }
